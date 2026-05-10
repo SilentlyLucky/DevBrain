@@ -4,8 +4,6 @@ import { CheckCircle2, XCircle, AlertCircle, Info, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 type ToastType = 'success' | 'error' | 'warning' | 'info'
 
 interface Toast {
@@ -36,11 +34,7 @@ interface ToastContextValue {
   }) => Promise<boolean>
 }
 
-// ─── Context ─────────────────────────────────────────────────────────────────
-
 const ToastContext = createContext<ToastContextValue | null>(null)
-
-// ─── Provider ────────────────────────────────────────────────────────────────
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -129,8 +123,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-// ─── Toast item ───────────────────────────────────────────────────────────────
-
 const STYLES: Record<ToastType, { icon: React.ReactNode; bar: string; border: string }> = {
   success: {
     icon: <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />,
@@ -176,8 +168,6 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
     </div>
   )
 }
-
-// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useToast() {
   const ctx = useContext(ToastContext)

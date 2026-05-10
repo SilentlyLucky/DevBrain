@@ -69,8 +69,7 @@ export function ChatWindow({ isFullscreen = false }: { isFullscreen?: boolean })
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // ~21px per line at text-sm + 1.5 line-height, + 16px padding
-  const maxH = isFullscreen ? 168 : 80  // 7 lines : 3 lines
+  const maxH = isFullscreen ? 168 : 80
 
   function autoResize(el: HTMLTextAreaElement) {
     el.style.height = 'auto'
@@ -103,7 +102,6 @@ export function ChatWindow({ isFullscreen = false }: { isFullscreen?: boolean })
       e.preventDefault()
       formRef.current?.requestSubmit()
     }
-    // plain Enter = new line (default textarea behaviour, no override needed)
   }
 
   async function handleClear() {

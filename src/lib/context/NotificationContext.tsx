@@ -51,12 +51,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const missedTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
   const supabaseRef  = useRef(createClient())
 
-  // Hydrate from localStorage after mount (avoids SSR mismatch)
   useEffect(() => {
     setNotifications(loadFromStorage())
   }, [])
 
-  // Persist to localStorage whenever notifications change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications))
   }, [notifications])
@@ -68,7 +66,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     })
   }, [])
 
-  // ─── Auto-mark Missed when end_time passes ────────────────────────────────
   const registerMissedTimer = useCallback((schedule: Schedule) => {
     const existing = missedTimers.current.get(schedule.id)
     if (existing) clearTimeout(existing)
@@ -82,14 +79,12 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         .from('schedules')
         .update({ status: 'Missed' })
         .eq('id', schedule.id)
-        .eq('status', 'Upcoming') // only if user hasn't manually completed it
-      // Signal schedule views to reload
+        .eq('status', 'Upcoming')
       window.dispatchEvent(new CustomEvent('schedule-status-changed'))
       missedTimers.current.delete(schedule.id)
     }
 
     if (delay <= 0) {
-      // end_time already passed - mark Missed immediately on page load
       void markMissed()
     } else {
       const t = setTimeout(() => void markMissed(), delay)
@@ -102,7 +97,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     if (t) { clearTimeout(t); missedTimers.current.delete(scheduleId) }
   }, [])
 
-  // ─── Reminder notification timer ───────────────────────────────────────────
   const registerTimer = useCallback((schedule: Schedule) => {
     if (!schedule.reminder_minutes) return
     const existing = timers.current.get(schedule.id)
@@ -114,7 +108,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const delay        = reminderAt - now
 
     if (delay <= 0) {
-      // Reminder time already passed - fire immediately if event hasn't started yet
       if (now < eventStartsAt) addNotification(schedule)
       return
     }
@@ -131,7 +124,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     if (t) { clearTimeout(t); timers.current.delete(scheduleId) }
   }, [])
 
-  // ─── Init ──────────────────────────────────────────────────────────────────
   useEffect(() => {
     let channel: ReturnType<typeof supabaseRef.current.channel> | null = null
 
@@ -139,7 +131,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       const { data: { user } } = await supabaseRef.current.auth.getUser()
       if (!user) return
 
-      // Fetch ALL Upcoming schedules (with or without reminders)
       const { data } = await supabaseRef.current
         .from('schedules')
         .select('*')
@@ -148,12 +139,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
       if (data) {
         for (const s of data as Schedule[]) {
-          registerMissedTimer(s)           // auto-Missed for every Upcoming
-          if (s.reminder_minutes) registerTimer(s)  // reminder notif if set
+          registerMissedTimer(s)
+          if (s.reminder_minutes) registerTimer(s)
         }
       }
 
-      // Listen for real-time changes (new schedules, manual status changes)
       channel = supabaseRef.current
         .channel(`notification-schedules-${Date.now()}`)
         .on(
@@ -172,7 +162,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
               registerMissedTimer(s)
               if (s.reminder_minutes) registerTimer(s)
             } else {
-              // User manually completed/missed it - cancel pending timers
               cancelTimer(s.id)
               cancelMissedTimer(s.id)
             }

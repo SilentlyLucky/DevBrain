@@ -5,8 +5,6 @@ import { DefaultChatTransport, type UIMessage } from 'ai'
 import { saveChatMessage } from '@/actions/chat'
 import type { ChatMessage } from '@/types'
 
-// ── helpers ────────────────────────────────────────────────────────────────
-
 function toUIMessage(m: ChatMessage): UIMessage {
   return {
     id: m.id,
@@ -16,21 +14,16 @@ function toUIMessage(m: ChatMessage): UIMessage {
   }
 }
 
-// ── context type ───────────────────────────────────────────────────────────
-
 interface AiChatContextType {
-  // widget open/close
   isOpen: boolean
   isMinimized: boolean
   setIsOpen: (v: boolean) => void
   setIsMinimized: (v: boolean) => void
   open: () => void
   close: () => void
-  // prompt pre-fill
   initialPrompt: string
   setInitialPrompt: (prompt: string) => void
   openWithPrompt: (prompt: string) => void
-  // shared chat state
   messages: UIMessage[]
   setMessages: (msgs: UIMessage[]) => void
   sendMessage: (opts: { text: string }) => void
@@ -46,8 +39,6 @@ const AiChatContext = createContext<AiChatContextType>({
   messages: [], setMessages: () => {}, sendMessage: () => {},
   status: 'idle', error: undefined,
 })
-
-// ── provider ───────────────────────────────────────────────────────────────
 
 export function AiChatProvider({
   children,

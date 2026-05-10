@@ -49,7 +49,6 @@ export function AiWidget() {
     return () => document.removeEventListener('keydown', onKey)
   }, [isFullscreen])
 
-  // ── Drag ────────────────────────────────────────────────────────────────────
   const startDrag = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if ((e.target as HTMLElement).closest('button')) return
     if (isFullscreen) return
@@ -78,7 +77,6 @@ export function AiWidget() {
     document.addEventListener('mouseup',  onUp)
   }, [isFullscreen, isMinimized])
 
-  // ── Resize ───────────────────────────────────────────────────────────────────
   const startResize = useCallback((e: React.MouseEvent, dir: ResizeDir) => {
     e.preventDefault()
     e.stopPropagation()
@@ -90,18 +88,16 @@ export function AiWidget() {
     const startMouseY = e.clientY
     const startW = rect.width
     const startH = rect.height
-    // Use current rect position as baseline (works for both CSS-anchored and dragged)
     const startLeft = rect.left
     const startTop  = rect.top
 
-    // Initialize explicit pos if widget is still CSS-anchored (pos=null)
     if (!posRef.current) {
       setPos({ x: startLeft, y: startTop })
     }
 
     function onMove(ev: MouseEvent) {
-      const dx = ev.clientX - startMouseX  // + = moved right
-      const dy = ev.clientY - startMouseY  // + = moved down
+      const dx = ev.clientX - startMouseX
+      const dy = ev.clientY - startMouseY
 
       const maxW = Math.min(MAX_W, window.innerWidth  - 48)
       const maxH = Math.min(MAX_H, window.innerHeight - 48)
@@ -117,7 +113,6 @@ export function AiWidget() {
         newX = startLeft + (startW - newW)
       } else if (dir.includes('e')) {
         newW = Math.min(maxW, Math.max(MIN_W, startW + dx))
-        // newX unchanged
       }
 
       // Vertical
@@ -126,10 +121,8 @@ export function AiWidget() {
         newY = startTop + (startH - newH)
       } else if (dir.includes('s')) {
         newH = Math.min(maxH, Math.max(MIN_H, startH + dy))
-        // newY unchanged
       }
 
-      // Clamp to viewport
       newX = Math.max(0, Math.min(window.innerWidth  - newW, newX))
       newY = Math.max(0, Math.min(window.innerHeight - newH, newY))
 
@@ -151,7 +144,6 @@ export function AiWidget() {
     setPos(null)
   }
 
-  // ── Closed state ─────────────────────────────────────────────────────────────
   if (!isOpen) {
     if (schedulePanelOpen) return null
     return (
@@ -167,8 +159,8 @@ export function AiWidget() {
   const showResizeHandles = !isMinimized && !isFullscreen
   const posStyle = pos ? { left: pos.x, top: pos.y } : undefined
   const posClass = pos ? '' : 'bottom-6 right-6'
-  const H = 6   // edge handle thickness
-  const C = 14  // corner handle size
+  const H = 6
+  const C = 14
 
   return (
     <div

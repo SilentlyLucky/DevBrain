@@ -154,7 +154,7 @@ export function EventDetailModal({ event, onClose }: Props) {
         {/* Glow backdrop */}
         <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-br from-primary/10 via-transparent to-violet-500/10 pointer-events-none" />
 
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="relative flex items-start justify-between px-6 py-5 border-b border-muted/50 shrink-0">
           <div className="flex-1 min-w-0 pr-4">
             <h2 className="text-lg font-bold leading-snug tracking-tight text-foreground">
@@ -194,7 +194,7 @@ export function EventDetailModal({ event, onClose }: Props) {
         </div>
 
         {isEditing ? (
-          /* ── Edit form ── */
+          /* Edit form */
           <>
             <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
 
@@ -295,7 +295,7 @@ export function EventDetailModal({ event, onClose }: Props) {
             </div>
           </>
         ) : (
-          /* ── View mode ── */
+          /* View mode */
           <>
             <div className="px-6 py-5 space-y-4">
               

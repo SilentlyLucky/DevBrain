@@ -22,7 +22,6 @@ import { EventDetailModal } from './EventDetailModal'
 import { updateScheduleGcalId, importSchedulesFromGcal } from '@/actions/schedules'
 import { createClient } from '@/lib/supabase/client'
 
-// Mock icons for the UI
 const GoogleIcon = () => (
   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -61,8 +60,6 @@ function getEventDotClass(title: string) {
   if (t.includes('jwt') || t.includes('auth')) return "text-green-600"
   return "text-orange-400"
 }
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate()
@@ -103,7 +100,6 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
         isCurrentMonth: true,
       })
     }
-    // Next month days to complete grid (5 rows x 7 cols = 35 cells)
     const remaining = 35 - cells.length
     for (let i = 1; i <= remaining; i++) {
       cells.push({
@@ -161,13 +157,11 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1))
   const goToday = () => setCurrentDate(new Date())
 
-  // Format month year for display
   const monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ]
   const displayMonthYear = `${monthNames[month]} ${year}`
 
-  // Format for displaying time e.g., "08:00"
   const formatTime = (dateStr: string) => {
     const d = new Date(dateStr)
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
@@ -191,7 +185,6 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
     })
     .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
 
-  // Sync handler
   async function handleSync() {
     setSyncing(true)
     try {
@@ -470,7 +463,7 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
                       "p-2 border-r border-b border-muted/50 hover:bg-muted/30 transition-colors cursor-pointer",
                       !cell.isCurrentMonth && "opacity-40",
                       i % 7 === 6 && "border-r-0",
-                      i >= 28 && "border-b-0" // last row
+                      i >= 28 && "border-b-0"
                     )}
                   >
                     <div className="flex items-center justify-start mb-1">
@@ -483,7 +476,6 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
                     </div>
                     <div className="space-y-1 mt-2">
                       {events.map((evt, idx) => {
-                        // Title wrapping logic based on mockup
                         const words = evt.title.split(' ')
                         const line1 = words.slice(0, 2).join(' ')
                         const line2 = words.slice(2).join(' ')

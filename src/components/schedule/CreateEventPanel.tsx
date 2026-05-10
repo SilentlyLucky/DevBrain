@@ -10,8 +10,6 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/toast-notification'
 import { cn } from '@/lib/utils'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface Category { id: string; name: string; color: string }
 interface DocOption { id: string; title: string; file_extension: string | null; source_type: string }
 
@@ -44,8 +42,6 @@ function loadCategories(): Category[] {
   } catch { return DEFAULT_CATEGORIES }
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 function formatDate(d: Date): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
@@ -58,8 +54,6 @@ function combineDateAndTime(date: Date | undefined, time: string): string | null
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 interface Props { open: boolean; onClose: () => void }
 
@@ -241,7 +235,6 @@ export function CreateEventPanel({ open, onClose }: Props) {
           if (res.ok) {
             const { gcal_event_id } = await res.json()
             // update gcal_event_id on the newly created schedule
-            // (fetch latest schedule by title+time to get its id)
             if (gcal_event_id) {
               const { data: schedules } = await supabase
                 .from('schedules')

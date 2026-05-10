@@ -9,8 +9,6 @@ import { Input } from '@/components/ui/input'
 import type { Schedule } from '@/types'
 import { cn } from '@/lib/utils'
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 function isOverdue(s: Schedule) {
   return s.status === 'Upcoming' && new Date(s.end_time) < new Date()
 }
@@ -28,8 +26,6 @@ function applyFilter(schedules: Schedule[], filter: Filter): Schedule[] {
     default:           return schedules
   }
 }
-
-// ─── ScheduleItem ─────────────────────────────────────────────────────────────
 
 function ScheduleItem({ s, syncingId, deletingId, onSync, onDelete }: {
   s: Schedule
@@ -122,8 +118,6 @@ function ScheduleItem({ s, syncingId, deletingId, onSync, onDelete }: {
   )
 }
 
-// ─── ScheduleList ─────────────────────────────────────────────────────────────
-
 export function ScheduleList({ schedules }: { schedules: Schedule[] }) {
   const [showForm, setShowForm] = useState(false)
   const [syncingId, setSyncingId] = useState<string | null>(null)
@@ -133,7 +127,6 @@ export function ScheduleList({ schedules }: { schedules: Schedule[] }) {
   async function handleSync(schedule: Schedule) {
     setSyncingId(schedule.id)
     try {
-      // Get provider_token from browser session as SSR doesn't always persist it
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
       const provider_token = session?.provider_token ?? null

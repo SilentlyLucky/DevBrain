@@ -3,7 +3,6 @@ import { createClient } from '@/lib/supabase/server'
 import { google } from '@/lib/gemini'
 import { generateText } from 'ai'
 
-// Use the smallest available model - folder matching is a trivial classification task
 const suggestionModel = google('gemini-2.5-flash-lite')
 
 export async function POST(req: Request) {
@@ -18,7 +17,6 @@ export async function POST(req: Request) {
       folderNames: string[]
     }
 
-    // If no folders exist, skip AI and return null
     if (!folderNames || folderNames.length === 0) {
       return NextResponse.json({ suggestion: null })
     }
@@ -42,28 +40,24 @@ Rules:
       maxOutputTokens: 30,
     })
 
-    const raw = text.trim().replace(/^["']|["']$/g, '') // strip accidental quotes
+    const raw = text.trim().replace(/^["']|["']$/g, '')
 
     if (!raw || raw.toUpperCase() === 'NONE') {
       return NextResponse.json({ suggestion: null })
     }
 
-    // 1. Exact case-insensitive match
     let matched = folderNames.find(n => n.toLowerCase() === raw.toLowerCase()) ?? null
 
-    // 2. Folder name contained in model output (e.g. model said "Kalkulus 2" but folder is "Kalkulus")
     if (!matched) {
       matched = folderNames.find(n => raw.toLowerCase().includes(n.toLowerCase())) ?? null
     }
 
-    // 3. Model output contained in folder name (e.g. model said "Calc" but folder is "Kalkulus")
     if (!matched) {
       matched = folderNames.find(n => n.toLowerCase().includes(raw.toLowerCase())) ?? null
     }
 
     return NextResponse.json({ suggestion: matched })
   } catch (err: unknown) {
-    // Log only unexpected errors - transient 503/overload failures are non-fatal
     const status = (err as { statusCode?: number })?.statusCode
     if (!status || status < 500) console.error('[suggest-folder]', err)
     return NextResponse.json({ suggestion: null })

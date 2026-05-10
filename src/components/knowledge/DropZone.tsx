@@ -28,13 +28,11 @@ const PRESET_COLORS = [
   '#10B981', '#F59E0B', '#EF4444', '#F97316',
 ]
 
-// ─── Folder Selector Dropdown ─────────────────────────────────────────────────
-
 interface FolderSelectorProps {
   folders: Folder[]
   selectedIds: string[]
   aiSuggestion: string | null
-  aiNoMatch?: boolean        // AI ran but found no suitable folder
+  aiNoMatch?: boolean
   onToggle: (id: string) => void
   onCreateFolder: (name: string, color: string) => Promise<void>
 }
@@ -211,8 +209,6 @@ function FolderSelector({ folders, selectedIds, aiSuggestion, aiNoMatch, onToggl
   )
 }
 
-// ─── Main DropZone ─────────────────────────────────────────────────────────────
-
       interface Props {
         folders ?: Folder[]
       }
@@ -320,7 +316,6 @@ function FolderSelector({ folders, selectedIds, aiSuggestion, aiNoMatch, onToggl
           const {extractTextFromFile} = await import('@/lib/file-parser')
           let content = await extractTextFromFile(file)
 
-          // For PDFs: detect image-heavy pages and describe them with Gemini Vision
           if (ext === '.pdf') {
         try {
           const {getPdfImagePages} = await import('@/lib/pdf-parser')
@@ -359,10 +354,7 @@ function FolderSelector({ folders, selectedIds, aiSuggestion, aiNoMatch, onToggl
           const title = file.name.replace(/\.[^/.]+$/, '')
           const source_type = ext === '.pdf' ? 'PDF' : 'FILE'
 
-          // Stage file immediately so UI is responsive
           setStagedFile({ title, content, source_type, file_extension: ext, fileUrl })
-
-          // AI suggestion runs in background - updates folder selector when it arrives
           suggestFolder(title, content.slice(0, 500))
           setStatusType('success')
     } catch (err) {

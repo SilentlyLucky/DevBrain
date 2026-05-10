@@ -26,7 +26,6 @@ export function chunkText(content: string): string[] {
         current = para
       }
 
-      // Force-split if a single paragraph exceeds MAX_CHARS
       while (current.length > MAX_CHARS) {
         chunks.push(current.slice(0, MAX_CHARS))
         current = current.slice(MAX_CHARS - OVERLAP)

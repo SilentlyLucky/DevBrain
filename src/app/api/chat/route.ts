@@ -61,7 +61,6 @@ export async function POST(req: Request) {
             }
           }
 
-          // Group by document so the AI sees ALL matching documents, not just top chunks
           const byDoc = new Map<string, { excerpts: string[]; score: number }>()
           for (const c of chunks) {
             if (!byDoc.has(c.document_title)) {
@@ -141,7 +140,6 @@ export async function POST(req: Request) {
           addToGoogleCalendar: z.boolean().optional().describe('If true, also create the event in Google Calendar'),
         }),
         execute: async ({ title, startTime, endTime, description, category, documentIds, reminderMinutes, addToGoogleCalendar }) => {
-          // Build description string with optional [Category] prefix - same format as CreateEventPanel
           let fullDescription: string | undefined
           if (category && description) fullDescription = `[${category}] ${description}`
           else if (category)           fullDescription = `[${category}]`
@@ -156,7 +154,6 @@ export async function POST(req: Request) {
           if (error) return { success: false, error: error.message }
           revalidatePath('/schedule')
 
-          // Optional Google Calendar sync
           if (addToGoogleCalendar && newSchedule) {
             const { data: { session } } = await supabase.auth.getSession()
             const providerToken = session?.provider_token

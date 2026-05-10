@@ -21,7 +21,6 @@ export function SettingsClientSection({ name: initialName, email, memberSince, a
   const router = useRouter()
   const supabase = createClient()
   const toast = useToast()
-
   const [displayName, setDisplayName] = useState(initialName)
 
   // Edit name dialog
@@ -33,7 +32,6 @@ export function SettingsClientSection({ name: initialName, email, memberSince, a
   const [emailOpen, setEmailOpen] = useState(false)
   const [newEmail, setNewEmail] = useState('')
   const [savingEmail, setSavingEmail] = useState(false)
-
   const [deleting, setDeleting] = useState(false)
 
   // Google account linking
@@ -64,7 +62,6 @@ export function SettingsClientSection({ name: initialName, email, memberSince, a
         toast.error('Unable to connect Google account. Please try again later.')
         setLinkingGoogle(false)
       }
-      // On success, the browser is redirecting - don't reset loading state
     } catch {
       toast.error('Unable to connect Google account. Please try again later.')
       setLinkingGoogle(false)

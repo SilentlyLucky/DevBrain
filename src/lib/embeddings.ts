@@ -1,6 +1,5 @@
 import 'server-only'
 
-// src/lib/embeddings.ts
 import { embed } from 'ai'
 import { google } from '@/lib/gemini'
 

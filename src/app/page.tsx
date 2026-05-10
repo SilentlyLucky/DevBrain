@@ -12,23 +12,23 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-surface flex flex-col relative overflow-hidden selection:bg-primary/30">
 
-      {/* ── Ambient edge glows - colour hints at corners only ── */}
+      {/* Edge glows */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Violet - top-right corner */}
+        {/* Top right glow */}
         <div className="absolute top-[-20%] right-[-10%] w-[70vw] h-[70vw] rounded-full opacity-40 blur-[160px]"
           style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.25), transparent 70%)' }} />
 
-        {/* Cobalt - bottom-left corner */}
+        {/* Bottom left glow */}
         <div className="absolute bottom-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full opacity-40 blur-[140px]"
           style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.45), transparent 70%)' }} />
 
-        {/* Magenta - bottom-right corner */}
+        {/* Bottom right glow */}
         <div className="absolute bottom-[-15%] right-[-8%] w-[45vw] h-[45vw] rounded-full opacity-20 blur-[140px]"
           style={{ background: 'radial-gradient(circle, rgba(168,85,247,0.2), transparent 70%)' }} />
       </div>
 
       <LandingCursor />
-      {/* ─── Ambient background ─── */}
+      {/* Background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/3 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] rounded-full bg-primary/[0.03] blur-3xl" />
@@ -45,7 +45,7 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* ─── Navbar (logo + login + signup only) ─── */}
+      {/* Navbar */}
       <nav className="relative z-30 px-6 py-5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5 group cursor-default">
@@ -85,10 +85,10 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ─── Hero ─── */}
+      {/* Hero */}
       <section className="relative z-10 px-6 pt-12 pb-20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          {/* Left column - copy */}
+          {/* Left copy */}
           <div className="relative">
             <div
               className="group inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-7 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_16px_rgba(0,229,255,0.25)] hover:border-cyan-400/60 cursor-default"
@@ -124,7 +124,7 @@ export default function LandingPage() {
               Save, understand, and rediscover your knowledge with AI assistance that learns with you.
             </p>
 
-            {/* Primary CTA only - no Watch Demo */}
+            {/* Primary CTA */}
             <div className="mb-7">
               <Link
                 href="/register"
@@ -146,12 +146,12 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right column - animated brain illustration */}
+          {/* Right visual */}
           <BrainHeroVisual />
         </div>
       </section>
 
-      {/* ─── Feature cards (4) ─── */}
+      {/* Features */}
       <section className="relative z-10 px-6 pb-24">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 rounded-[24px] border border-[#132238] bg-[#0B1324]/50 backdrop-blur-sm">
@@ -183,25 +183,25 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Footer (two-column: Brand | Contact Us, divider, copyright) ─── */}
+      {/* Footer */}
       <footer className="relative z-10 mt-auto pt-12 pb-8" style={{
         background: 'linear-gradient(to bottom, transparent, rgba(7,17,31,0.5))',
       }}>
-        {/* Top edge accent - vivid gradient hairline */}
+        {/* Top edge accent */}
         <div className="absolute top-0 left-0 right-0 h-[1.5px]">
           <div className="h-full bg-gradient-to-r from-transparent via-[#00E5FF] to-transparent" />
         </div>
-        {/* Ambient footer glow */}
+        {/* Footer glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(ellipse, rgba(0,229,255,0.07) 0%, transparent 70%)' }}
         />
 
         <div className="max-w-6xl mx-auto px-6">
-          {/* Two-column grid */}
+          {/* Two columns */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 pb-10">
-            {/* ── LEFT: Brand ── */}
+            {/* Left brand */}
             <div>
-              {/* Logo + name with halo glow */}
+              {/* Logo */}
               <div className="flex items-center gap-3.5 mb-6">
                 <div className="relative">
                   <div className="absolute inset-0 rounded-[13px] blur-md animate-pulse"
@@ -218,7 +218,7 @@ export default function LandingPage() {
                 <span className="font-bold text-2xl tracking-tight">DevBrain</span>
               </div>
 
-              {/* Description with deliberate emphasis */}
+              {/* Description */}
               <p className="text-sm text-foreground/70 leading-[1.9] max-w-md">
                 Your AI-powered second brain. Built to help you <br />
                 <span className="text-primary font-medium">remember</span>,{' '}
@@ -230,9 +230,9 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* ── RIGHT: Contact Me ── */}
+            {/* Right contact */}
             <div>
-              {/* Header with gradient continuation line */}
+              {/* Contact header */}
               <div className="flex items-center gap-3 mb-6T">
                 <h3 className="text-lg font-bold tracking-tight whitespace-nowrap" style={{
                   backgroundImage: 'linear-gradient(90deg, #00E5FF, #A855F7)',
@@ -245,18 +245,18 @@ export default function LandingPage() {
 
               {/* Contact list */}
               <ul className="space-y-1">
-                <ContactRow icon={<LinkedinSvg />} label="LinkedIn" value="@stevenalvinch" href="https://linkedin.com/in/stevenalvinch" accentColor="#2563EB" />
+                <ContactRow icon={<LinkedinSvg />} label="LinkedIn" value="@stevenalvinch" href="https://www.linkedin.com/in/stevenalvinchristian" accentColor="#2563EB" />
                 <ContactRow icon={<GmailSvg />} label="Email" value="stevenalvinch@gmail.com" href="mailto:stevenalvinch@gmail.com" accentColor="#00E5FF" />
-                <ContactRow icon={<GithubSvg />} label="GitHub" value="@stevenalvinch" href="https://github.com/stevenalvinch" accentColor="#A855F7" />
+                <ContactRow icon={<GithubSvg />} label="GitHub" value="@SilentlyLucky" href="https://github.com/SilentlyLucky" accentColor="#A855F7" />
                 <ContactRow icon={<PhoneSvg />} label="Phone" value="+62 812-3456-7890" href="tel:+6281234567890" accentColor="#4BFC98" />
               </ul>
             </div>
           </div>
 
-          {/* Full-width gradient divider */}
+          {/* Divider */}
           <div className="relative h-px mt-2">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(0,229,255,0.35)] to-transparent" />
-            {/* Center jewel - multi-layer glow */}
+            {/* Center jewel */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
               style={{
                 background: 'linear-gradient(135deg, #00E5FF, #A855F7)',
@@ -265,7 +265,7 @@ export default function LandingPage() {
             />
           </div>
 
-          {/* Copyright centered */}
+          {/* Copyright */}
           <div className="pt-6 text-center">
             <p className="text-xs text-foreground/55 tracking-wide">
               <span className="text-primary">©</span> 2026 <span className="font-semibold text-foreground/85">DevBrain</span>. All rights reserved.
@@ -280,7 +280,7 @@ export default function LandingPage() {
   )
 }
 
-// ─── Brain Hero Visual ───────────────────────────────────────────────────────
+// Brain hero visual
 const BRAIN_C = { x: 50, y: 44 }
 const ICON_TARGETS = [
   { x: 50, y: 12 }, // Calendar (top center)
@@ -290,30 +290,30 @@ const ICON_TARGETS = [
   { x: 88, y: 55 }, // MessageCircle (right-lower)
 ] as const
 
-// Matches FloatingPlate hue assignments - index-aligned with ICON_TARGETS
+// Hue mapping for ICON_TARGETS
 const ICON_HUES = [195, 280, 145, 45, 330] as const
 
 const GLOW_EXCLUSION_RADIUS = '55%'
-const BRAIN_R = 20  // approximate brain outline radius in SVG units
+const BRAIN_R = 20  // brain radius in SVG units
 
-// Path from brain OUTLINE (not center) to icon - gives a short curve starting at the edge
+// Path from brain edge to icon
 function nervePath({ x, y }: { x: number; y: number }): string {
   const dx = x - BRAIN_C.x
   const dy = y - BRAIN_C.y
   const dist = Math.hypot(dx, dy) || 1
-  // Start point: brain outline in direction of icon
+  // Start on brain edge
   const sx = BRAIN_C.x + (dx / dist) * BRAIN_R
   const sy = BRAIN_C.y + (dy / dist) * BRAIN_R
-  // Control point: mid-way with a slight perpendicular bow
+  // Mid control point
   const mx = (sx + x) / 2
   const my = (sy + y) / 2
-  const bow = 2.5                   // perpendicular offset for gentle curve
+  const bow = 2.5
   const px = (-dy / dist) * bow
   const py = (dx / dist) * bow
   return `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${(mx + px).toFixed(1)} ${(my + py).toFixed(1)} ${x} ${y}`
 }
 
-// ── Brain glow tuning - change only these values ─────────────────────────────
+// Brain glow tuning
 const BRAIN_GLOW = {
   rotationSpeed: 3.5,     // seconds per full revolution (lower = faster)
   opacityMin: 0.6,   // arc brightness at its dimmest (0–1)
@@ -323,16 +323,14 @@ const BRAIN_GLOW = {
   arcFadeIn: 60,    // degrees: how long the arc takes to fade in
   glowBlur: 4,     // px: drop-shadow blur radius of the sweep layer
 } as const
-// ─────────────────────────────────────────────────────────────────────────────
 
-// ── Beam tuning - change only these four values ──────────────────────────────
+// Beam tuning
 const BEAM = {
   delay: 0.24,   // seconds: how long after glow arrives before beam starts
   duration: 0.7,  // seconds: how long the beam takes to travel brain → icon (speed)
   length: 5,      // SVG units: visible length of the beam segment (size)
   width: 1.2,    // SVG units: stroke width of the beam (thickness)
 } as const
-// ─────────────────────────────────────────────────────────────────────────────
 
 function BrainHeroVisual() {
   const maskContainerRef = useRef<HTMLDivElement>(null)
@@ -347,7 +345,7 @@ function BrainHeroVisual() {
       if (el) el.style.strokeDasharray = `${BEAM.length} ${len * 12}`
       return len
     })
-    // Nerve start points on the brain outline (where glow must be to trigger a beam)
+    // Nerve start points
     const nerveStarts = ICON_TARGETS.map(({ x, y }) => {
       const dx = x - BRAIN_C.x
       const dy = y - BRAIN_C.y
@@ -380,13 +378,13 @@ function BrainHeroVisual() {
         y: 44 + R * Math.sin(tipRad),
       }
 
-      // Signal/beam: fire when glow tip is at the nerve start on the brain outline
+      // Trigger beam when glow tip reaches start
       ICON_TARGETS.forEach((_target, i) => {
         const el = signalRefs.current[i]
         if (!el) return
 
         const len = signalLens[i] || 25
-        // strokeDasharray is already set outside the tick loop
+        // strokeDasharray set outside loop
 
         const tSince = elapsed - triggerTimes[i]
 
@@ -456,7 +454,7 @@ function BrainHeroVisual() {
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          {/* Tighter glow for signal beam - hugs the line closely */}
+          {/* Beam glow */}
           <filter id="signal-glow" x="-60%" y="-60%" width="220%" height="220%">
             <feGaussianBlur stdDeviation="0.5" result="blur" />
             <feMerge>
@@ -465,7 +463,7 @@ function BrainHeroVisual() {
             </feMerge>
           </filter>
         </defs>
-        {/* Faint base nerve wires */}
+        {/* Base nerve wires */}
         {ICON_TARGETS.map((target, i) => (
           <path
             key={i}
@@ -477,7 +475,7 @@ function BrainHeroVisual() {
             vectorEffect="non-scaling-stroke"
           />
         ))}
-        {/* Signal beams - colored pulse traveling from brain to icon */}
+        {/* Signal beams */}
         {ICON_TARGETS.map((target, i) => (
           <path
             key={`sig-${i}`}
@@ -494,13 +492,13 @@ function BrainHeroVisual() {
       </svg>
       <div className="absolute left-1/2 top-[44%] w-[44%] h-[44%] -translate-x-1/2 -translate-y-1/2 animate-brain-heartbeat z-10 flex items-center justify-center">
         <div className="relative w-full h-full flex items-center justify-center">
-          {/* Base brain - plain teal */}
+          {/* Base brain */}
           <Brain
             className="w-full h-full text-primary"
             strokeWidth={1.3}
             style={{ filter: 'drop-shadow(0 0 3px #00E5FF) drop-shadow(0 0 4px rgba(0,229,255,0.55))' }}
           />
-          {/* Rotating teal sweep */}
+          {/* Rotating sweep */}
           <div ref={maskContainerRef} className="absolute inset-0 w-full h-full pointer-events-none">
             <Brain
               className="w-full h-full"
@@ -702,7 +700,7 @@ function FeatureItem({ icon, title, description, accentColor = '#00E5FF' }: {
   )
 }
 
-// ─── Footer contact row (sketch layout: ⊙ LABEL ─── value ›) ──────────────
+// Footer contact row
 
 function ContactRow({
   icon, label, value, href, accentColor = '#00E5FF',
@@ -733,7 +731,7 @@ function ContactRow({
         onMouseEnter={e => (e.currentTarget.style.background = rgba(0.06))}
         onMouseLeave={e => (e.currentTarget.style.background = '')}
       >
-        {/* Circle icon with accent bloom */}
+        {/* Icon */}
         <div className="relative flex-shrink-0">
           <div className="absolute inset-0 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             style={{ background: rgba(0.4) }} />
@@ -763,7 +761,7 @@ function ContactRow({
           </div>
         </div>
 
-        {/* Label - Value */}
+        {/* Label and value */}
         <div className="flex-1 min-w-0 flex items-center gap-3 sm:gap-4">
           <span className="text-[10px] uppercase tracking-[0.22em] text-foreground/50 font-bold w-[60px] flex-shrink-0">
             {label}
@@ -784,7 +782,7 @@ function ContactRow({
   )
 }
 
-// ─── Brand SVG icons (lucide doesn't include brand marks) ─────────────────
+// Brand SVG icons
 
 function LinkedinSvg() {
   return (

@@ -16,7 +16,6 @@ import { useStorage } from '@/lib/context/StorageContext'
 import { formatDate } from '@/lib/utils'
 import type { Document, Folder } from '@/types'
 
-// ─── Icon helper ─────────────────────────────────────────────────────────────
 const CODE_EXTS = new Set(['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.c', '.cpp', '.go', '.rs'])
 
 function getDocumentIcon(doc: Document) {
@@ -30,8 +29,6 @@ function getDocumentIcon(doc: Document) {
   if (doc.source_type === 'URL') return { Icon: Globe, color: 'text-blue-400' }
   return { Icon: AlignLeft, color: 'text-muted-foreground' }
 }
-
-// ─── DocumentRow (inside folder) ─────────────────────────────────────────────
 
 interface DocRowProps {
   doc: Document
@@ -133,10 +130,8 @@ function DocumentRow({ doc, allFolders, onPreview, onRenameDoc }: DocRowProps) {
   )
 }
 
-// ─── FolderSection ────────────────────────────────────────────────────────────
-
 interface FolderSectionProps {
-  folder: Folder | null   // null = "Uncategorized" virtual group
+  folder: Folder | null
   documents: Document[]
   allFolders: Folder[]
   onPreview: (doc: Document) => void
@@ -215,8 +210,6 @@ export function FolderSection({ folder, documents, allFolders, onPreview, onRena
     </div>
   )
 }
-
-// ─── RenameDialog + DeleteDialog ──────────────────────────────────────────────
 
 interface RenameDialogProps {
   open: boolean

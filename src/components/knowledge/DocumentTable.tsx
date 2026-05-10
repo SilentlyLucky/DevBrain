@@ -18,8 +18,6 @@ import { formatDate, formatDateLong, formatDateTime } from '@/lib/utils'
 import type { Document } from '@/types'
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist'
 
-// ─── Markdown viewer styles ──────────────────────────────────────────────────
-
 const PAPER_STYLES = `
   .pdf-md h1 { font-size: 1.85em; font-weight: 700; margin: 1.5em 0 0.5em; line-height: 1.2; color: #111; }
   .pdf-md h2 { font-size: 1.45em; font-weight: 700; margin: 1.4em 0 0.4em; line-height: 1.3; color: #1a1a1a; }
@@ -45,8 +43,6 @@ const PAPER_STYLES = `
   .pdf-md a { color: #0057b8; text-decoration: underline; }
 `
 
-// ─── Icon helper ─────────────────────────────────────────────────────────────
-
 const CODE_EXTS = new Set(['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.c', '.cpp', '.go', '.rs'])
 
 function getDocumentIcon(doc: Document) {
@@ -60,8 +56,6 @@ function getDocumentIcon(doc: Document) {
   if (doc.source_type === 'URL') return { Icon: Globe, color: 'text-blue-400' }
   return { Icon: AlignLeft, color: 'text-muted-foreground' }
 }
-
-// ─── PDF Canvas Renderer ─────────────────────────────────────────────────────
 
 function PdfPage({ pdf, pageNum }: { pdf: PDFDocumentProxy; pageNum: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -125,8 +119,6 @@ function PdfCanvasViewer({ docId }: { docId: string }) {
   )
 }
 
-// ─── DOCX Viewer ─────────────────────────────────────────────────────────────
-
 function DocxCanvasViewer({ docId }: { docId: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [loading, setLoading] = useState(true)
@@ -155,8 +147,6 @@ function DocxCanvasViewer({ docId }: { docId: string }) {
     </>
   )
 }
-
-// ─── CSV Table Viewer ────────────────────────────────────────────────────────
 
 function CsvTableViewer({ content }: { content: string }) {
   const [headers, setHeaders] = useState<string[]>([])
@@ -203,8 +193,6 @@ function CsvTableViewer({ content }: { content: string }) {
   )
 }
 
-// ─── Code Viewer ─────────────────────────────────────────────────────────────
-
 const LANG_MAP: Record<string, string> = {
   '.js': 'javascript', '.ts': 'typescript', '.jsx': 'jsx', '.tsx': 'tsx',
   '.py': 'python', '.java': 'java', '.c': 'c', '.cpp': 'cpp',
@@ -236,8 +224,6 @@ function CodeViewer({ content, extension }: { content: string; extension: string
 
   return <div dangerouslySetInnerHTML={{ __html: html }} style={{ minHeight: '400px' }} />
 }
-
-// ─── DocumentViewer ──────────────────────────────────────────────────────────
 
 export function DocumentViewer({ doc, onClose }: { doc: Document; onClose: () => void }) {
   const [content, setContent] = useState<string | null>(null)
@@ -367,8 +353,6 @@ export function DocumentViewer({ doc, onClose }: { doc: Document; onClose: () =>
     </div>
   )
 }
-
-// ─── DocumentTable ───────────────────────────────────────────────────────────
 
 export function DocumentTable({ documents }: { documents: Document[] }) {
   const router = useRouter()

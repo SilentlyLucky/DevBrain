@@ -52,7 +52,6 @@ function getTextContent(message: UIMessage): string {
     .join('')
 }
 
-// Props kept for page compatibility but messages come from shared context
 export function ChatHistoryClient({ initialMessages: _ }: { initialMessages: ChatMessage[] }) {
   const formRef     = useRef<HTMLFormElement>(null)
   const bottomRef   = useRef<HTMLDivElement>(null)

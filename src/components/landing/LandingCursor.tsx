@@ -1,33 +1,18 @@
 'use client'
 import { useEffect, useRef } from 'react'
 
-/**
- * Animated custom cursor for the landing page only.
- *
- * Renders three layers (in stacking order):
- *   1. A wide soft "spotlight" radial glow that lags far behind the mouse
- *   2. A medium halo ring that lags slightly behind (lerp = 0.18)
- *   3. A small bright dot that snaps to the exact mouse position
- *
- * Halo morphs (expands + intensifies) when hovering over interactive elements.
- * On click, the dot briefly contracts. Touch devices are skipped entirely.
- */
 export function LandingCursor() {
   const dotRef       = useRef<HTMLDivElement>(null)
   const haloRef      = useRef<HTMLDivElement>(null)
   const spotlightRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Skip on touch / coarse-pointer devices
     if (typeof window === 'undefined' || !window.matchMedia('(pointer: fine)').matches) return
 
     const mouse     = { x: -200, y: -200 }
     const halo      = { x: -200, y: -200 }
     const spotlight = { x: -200, y: -200 }
 
-    // Press state - animated via lerp; written into the same transform string as
-    // position. Avoids the bug where a CSS individual `scale` transition would
-    // override the JS-set translate3d and snap the dot back to (0,0).
     let pressedTarget = 1
     let pressedCurrent = 1
 
@@ -70,18 +55,15 @@ export function LandingCursor() {
     function onUp()   { pressedTarget = 1 }
 
     function animate() {
-      // Different lerp values give a layered, parallax-like trail
       halo.x      += (mouse.x      - halo.x)      * 0.20
       halo.y      += (mouse.y      - halo.y)      * 0.20
       spotlight.x += (mouse.x - spotlight.x)      * 0.08
       spotlight.y += (mouse.y - spotlight.y)      * 0.08
 
-      // Lerp scale toward target (0.55 when pressed, 1 when released)
       pressedCurrent += (pressedTarget - pressedCurrent) * 0.30
       const s = pressedCurrent.toFixed(3)
 
       if (dotRef.current) {
-        // Single transform string - translate then center then scale.
         dotRef.current.style.transform = `translate3d(${mouse.x}px, ${mouse.y}px, 0) translate(-50%, -50%) scale(${s})`
       }
       if (haloRef.current) {
@@ -117,7 +99,7 @@ export function LandingCursor() {
 
   return (
     <>
-      {/* Layer 3 - Wide spotlight (background-tier glow) */}
+      {/* Layer 3 - Wide spotlight */}
       <div
         ref={spotlightRef}
         aria-hidden
@@ -129,7 +111,7 @@ export function LandingCursor() {
         }}
       />
 
-      {/* Layer 2 - Halo ring (morphs on hover) */}
+      {/* Layer 2 - Halo ring (hover) */}
       <div
         ref={haloRef}
         aria-hidden
@@ -143,7 +125,7 @@ export function LandingCursor() {
         }}
       />
 
-      {/* Layer 1 - Bright dot (instant follow). Scale on press is lerped in JS. */}
+      {/* Layer 1 - Bright dot (instant follow) */}
       <div
         ref={dotRef}
         aria-hidden

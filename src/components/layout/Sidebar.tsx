@@ -60,7 +60,7 @@ export function Sidebar({ user }: { user: UserProfile }) {
         borderRight: '1px solid #132238',
       }}
     >
-      {/* ── Logo ── */}
+      {/* Logo */}
       <div className="px-5 pt-6 pb-5" style={{ borderBottom: '1px solid #132238' }}>
         <div className="flex items-center gap-3">
           <div
@@ -84,7 +84,7 @@ export function Sidebar({ user }: { user: UserProfile }) {
         </div>
       </div>
 
-      {/* ── Nav (scrollable) ── */}
+      {/* Nav (scrollable) */}
       <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-5 scrollbar-hide">
 
         {/* MAIN */}
@@ -181,7 +181,7 @@ export function Sidebar({ user }: { user: UserProfile }) {
         </div>
       </nav>
 
-      {/* ── User / Footer area ── */}
+      {/* User / Footer area */}
       <div
         className="px-3 py-4 space-y-4"
         style={{ borderTop: '1px solid #132238', background: '#07111F' }}

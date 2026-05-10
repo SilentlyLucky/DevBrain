@@ -5,7 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// UTC-based — identical output on server and client regardless of timezone/locale
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 const MONTHS_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
@@ -26,7 +25,6 @@ export function formatDateTime(dateStr: string): string {
   return `${d.getUTCDate()} ${MONTHS_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}, ${hh}:${mm}`
 }
 
-// Relative time ("2h ago") — coarse enough that SSR/CSR drift doesn't matter
 export function formatDistanceToNow(dateStr: string, now: Date = new Date()): string {
   const diffSec = Math.max(0, Math.floor((now.getTime() - new Date(dateStr).getTime()) / 1000))
   if (diffSec < 60)        return 'just now'

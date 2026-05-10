@@ -21,7 +21,6 @@ export async function POST(req: NextRequest) {
 
   const { title, start_time, end_time, provider_token: bodyToken } = await req.json()
 
-  // provider_token may not survive in SSR cookie - client sends it as fallback
   const providerToken = session.provider_token ?? bodyToken
   if (!providerToken) {
     return Response.json(
@@ -72,7 +71,6 @@ export async function DELETE(req: NextRequest) {
   } catch (err: unknown) {
     const message = extractMessage(err)
     console.error('[calendar DELETE]', message)
-    // Treat 404 (event already gone) as success
     if (message.includes('404') || message.toLowerCase().includes('not found')) {
       return Response.json({ success: true })
     }

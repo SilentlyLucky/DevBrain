@@ -9,8 +9,6 @@ import { useToast } from '@/components/ui/toast-notification'
 import { CreateEventPanel } from './CreateEventPanel'
 import { EventDetailModal } from './EventDetailModal'
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
 function parseCategory(desc: string | null | undefined): string | null {
   if (!desc) return null
   const m = desc.match(/^\[([^\]]+)\]/)
@@ -78,8 +76,6 @@ function groupSchedules(schedules: Schedule[]): Group[] {
     .filter(([, items]) => items.length > 0)
     .map(([label, items]) => ({ label, schedules: items }))
 }
-
-// ─── Task Item ────────────────────────────────────────────────────────────────
 
 function TaskItem({
   schedule,
@@ -168,8 +164,6 @@ function TaskItem({
     </div>
   )
 }
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 type FilterStatus = 'All' | 'Upcoming' | 'Completed' | 'Missed'
 

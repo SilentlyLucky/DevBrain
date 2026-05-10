@@ -1,10 +1,8 @@
-// src/lib/dal.ts
 import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { embedQuery } from '@/lib/embeddings'
 import type { Document, Folder, Schedule, ChatMessage } from '@/types'
 
-// Excludes `content` - only metadata needed for list/table views
 export const getDocuments = cache(async (): Promise<Document[]> => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -17,7 +15,6 @@ export const getDocuments = cache(async (): Promise<Document[]> => {
   return (data as Document[]) ?? []
 })
 
-// Fetches a single document including full content - use for preview and chat tools
 export async function getDocumentById(id: string): Promise<Document | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -94,8 +91,6 @@ export async function retrieveRelevantChunks(
   return (data as RelevantChunk[]) ?? []
 }
 
-// ─── Folders ──────────────────────────────────────────────────────────────────
-
 export const getFolders = cache(async (): Promise<Folder[]> => {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -113,7 +108,6 @@ export const getDocumentsWithFolders = cache(async (): Promise<Document[]> => {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
-  // Fetch documents
   const { data: docs } = await supabase
     .from('documents')
     .select('id, user_id, title, source_type, file_extension, file_url, created_at')
@@ -122,14 +116,12 @@ export const getDocumentsWithFolders = cache(async (): Promise<Document[]> => {
 
   if (!docs || docs.length === 0) return []
 
-  // Fetch all folder memberships for this user in one query (via join)
   const docIds = docs.map(d => d.id)
   const { data: memberships } = await supabase
     .from('document_folders')
     .select('document_id, folders(id, user_id, name, color, created_at)')
     .in('document_id', docIds)
 
-  // Map memberships to a lookup: documentId -> Folder[]
   type MembershipRow = { document_id: string; folders: Folder | Folder[] | null }
   const folderMap = new Map<string, Folder[]>()
   for (const m of ((memberships ?? []) as MembershipRow[])) {
