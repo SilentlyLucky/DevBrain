@@ -193,7 +193,7 @@ export async function getPdfImagePages(file: File, maxPages = 5): Promise<PdfIma
     const canvas = document.createElement('canvas')
     canvas.width  = viewport.width
     canvas.height = viewport.height
-    await page.render({ canvas, canvasContext: canvas.getContext('2d')!, viewport }).promise
+    await page.render({ canvas, canvasContext: canvas.getContext('2d')!, viewport, canvas: canvas }).promise
     const base64 = canvas.toDataURL('image/jpeg', 0.75).split(',')[1]
     canvas.width = 0 
     canvas.height = 0
