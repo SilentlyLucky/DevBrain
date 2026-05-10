@@ -161,7 +161,7 @@ export async function POST(req: Request) {
             category: z.string().optional().describe('Category name, e.g. "Work", "Personal", "Life"'),
             documentIds: z.array(z.string().uuid()).optional().describe('UUIDs of documents from listDocuments to link to this schedule (can be multiple)'),
             reminderMinutes: z.number().int().min(1).max(10080).optional()
-              .describe('Minutes before start_time to fire a reminder notification. Omit for no reminder. Convert natural language: "30 menit"→30, "1 jam"→60, "3 jam"→180, "1 hari"→1440'),
+              .describe('Minutes before start_time to fire a reminder notification. Omit for no reminder. Convert natural language: "30 menit"->30, "1 jam"->60, "3 jam"->180, "1 hari"->1440'),
             addToGoogleCalendar: z.boolean().optional().describe('If true, also create the event in Google Calendar'),
           }),
           execute: async ({ title, startTime, endTime, description, category, documentIds, reminderMinutes, addToGoogleCalendar }) => {
