@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
             {
               type: 'image',
               image: base64,
-              mimeType: 'image/jpeg' as const,
+              mediaType: 'image/jpeg',
             },
           ],
         }],
