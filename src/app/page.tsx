@@ -327,7 +327,7 @@ const BRAIN_GLOW = {
 // Beam tuning
 const BEAM = {
   delay: 0.24,   // seconds: how long after glow arrives before beam starts
-  duration: 0.7,  // seconds: how long the beam takes to travel brain → icon (speed)
+  duration: 0.7,  // seconds: how long the beam takes to travel from brain to icon (speed)
   length: 5,      // SVG units: visible length of the beam segment (size)
   width: 1.2,    // SVG units: stroke width of the beam (thickness)
 } as const
