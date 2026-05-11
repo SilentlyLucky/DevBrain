@@ -119,11 +119,14 @@ export async function POST(req: Request) {
         listSchedules: tool({
           description:
             "Get the user's daily schedules - upcoming, completed, and missed sessions. " +
-            'Call this when the user asks about their schedule, next task, or daily plan.',
+            'Call this when the user asks about their schedule, next task, or daily plan. ' +
+            'NOTE: "Overdue" is not a real database status. A schedule is overdue when its status is "Upcoming" but start_time is in the past. ' +
+            'To fix an overdue schedule, update its startTime and endTime to a future date using updateSchedule.',
           inputSchema: z.object({}),
           execute: async () => {
             const schedules = await getSchedules()
             if (schedules.length === 0) return { message: 'No schedules found.' }
+            const now = new Date()
             return {
               schedules: schedules.map(s => ({
                 id: s.id,
@@ -131,6 +134,7 @@ export async function POST(req: Request) {
                 start_time: s.start_time,
                 end_time: s.end_time,
                 status: s.status,
+                is_overdue: s.status === 'Upcoming' && new Date(s.start_time) < now,
                 description: s.description ?? null,
                 document_id: s.document_id,
               })),
