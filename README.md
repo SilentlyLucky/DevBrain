@@ -78,7 +78,7 @@ Browser (Client)
     │       └── Server Actions (mutations)
     │
     ├── API Routes (streaming/external)
-    │       ├── /api/chat          -> AI streaming chat
+    │       ├── /api/chat            -> AI streaming chat
     │       ├── /api/describe-images -> Gemini Vision for PDF images
     │       ├── /api/suggest-folder  -> AI folder suggestion
     │       └── /api/calendar        -> Google Calendar sync
@@ -128,7 +128,7 @@ All design tokens are declared in `src/app/globals.css` using CSS custom propert
 --color-foreground: #FFFFFF;
 ```
 
-The landing page features animated hero visuals built purely in CSS and SVG — no external animation libraries. Key animations include orbital rings, floating icon plates, lightning strikes, and a custom cursor layer system (`LandingCursor.tsx`).
+The landing page features animated hero visuals built purely in CSS and SVG - no external animation libraries. Key animations include orbital rings, floating icon plates, lightning strikes, and a custom cursor layer system (`LandingCursor.tsx`).
 
 ### Component Architecture
 
@@ -151,7 +151,7 @@ src/components/
 │   ├── ScheduleDashboard.tsx # Calendar grid + upcoming panel
 │   ├── ScheduleList.tsx      # Filterable list (All/Unfinished/Finished/Overdue)
 │   ├── TaskListView.tsx      # Grouped task view (Today/Tomorrow/This Week)
-│   ├── CreateEventPanel.tsx  # Slide-in panel for creating events
+│   ├── LocalTimeRange.tsx    # Get local time
 │   └── EventDetailModal.tsx  # View/edit modal for single event
 │
 ├── landing/            # Landing page components
@@ -208,7 +208,7 @@ importSchedulesFromGcal(events)  // Deduplicated import from Google
 createFolder(formData)                           // Create named + colored folder
 renameFolder(id, name)
 deleteFolder(id)                                 // Cascades to document_folders
-setDocumentFolders(documentId, folderIds[])     // Replace all folder assignments atomically
+setDocumentFolders(documentId, folderIds[])      // Replace all folder assignments atomically
 addDocumentToFolder(documentId, folderId)
 removeDocumentFromFolder(documentId, folderId)
 ```
@@ -223,22 +223,22 @@ When a document is saved, it triggers:
 
 ### API Routes
 
-**`POST /api/chat`** — Streaming AI chat
+**`POST /api/chat`** - Streaming AI chat
 - Authenticates user via Supabase session
 - Passes last 20 messages to `streamText()` with 5 AI tools available
 - Streams the response back to the browser using Vercel AI SDK's `UIMessageStreamResponse`
 
-**`POST /api/describe-images`** — PDF image analysis
+**`POST /api/describe-images`** - PDF image analysis
 - Receives base64-encoded page images from the client
 - Calls Gemini Vision to generate text descriptions
 - Returns descriptions to be merged into the document's text content
 
-**`POST /api/suggest-folder`** — AI folder suggestion
+**`POST /api/suggest-folder`** - AI folder suggestion
 - Receives document title, content preview, and list of existing folder names
 - Calls Gemini to pick the best matching folder
 - Returns `{ suggestion: string | null }`
 
-**`POST /api/calendar`** — Google Calendar sync
+**`POST /api/calendar`** - Google Calendar sync
 - Uses the OAuth `provider_token` from the user's Supabase session
 - Pushes DevBrain schedules to Google Calendar
 - Pulls new Google Calendar events back into DevBrain (deduplication by `gcal_event_id`)
@@ -313,7 +313,7 @@ The AI model (`gemini-2.5-flash`) is given a detailed system prompt and 5 callab
 
 | Tool | When Used |
 |---|---|
-| `retrieveContext` | Any question about document content — called first before answering |
+| `retrieveContext` | Any question about document content - called first before answering |
 | `listDocuments` | When user asks what's in their knowledge base |
 | `getDocumentContent` | When user explicitly wants to read a full document |
 | `listSchedules` | Any question about schedules or tasks |
@@ -345,7 +345,7 @@ When a file is uploaded, `DropZone.tsx` fires a background request to `/api/sugg
 
 ## Database Schema
 
-All tables use Row Level Security (RLS) — every query is automatically scoped to the authenticated user.
+All tables use Row Level Security (RLS) - every query is automatically scoped to the authenticated user.
 
 ```sql
 profiles          -- Extends auth.users; auto-created on signup via trigger
@@ -358,9 +358,9 @@ chat_messages     -- Persistent AI conversation history (last 50 per user)
 ```
 
 **Key indexes:**
-- `document_chunks_embedding_idx` — HNSW index for fast cosine similarity search
-- `document_chunks_fts_idx` — GIN index on `tsvector` for full-text search
-- `schedules_start_time_idx` — For chronological schedule queries
+- `document_chunks_embedding_idx` - HNSW index for fast cosine similarity search
+- `document_chunks_fts_idx` - GIN index on `tsvector` for full-text search
+- `schedules_start_time_idx` - For chronological schedule queries
 
 **Realtime:**
 - `schedules` table is added to `supabase_realtime` for live status updates
