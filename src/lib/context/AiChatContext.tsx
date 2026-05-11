@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useRef, useEffect, type ReactNode } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
+import { useRouter } from 'next/navigation'
 import { saveChatMessage } from '@/actions/chat'
 import type { ChatMessage } from '@/types'
 
@@ -33,10 +34,10 @@ interface AiChatContextType {
 
 const AiChatContext = createContext<AiChatContextType>({
   isOpen: false, isMinimized: false,
-  setIsOpen: () => {}, setIsMinimized: () => {},
-  open: () => {}, close: () => {},
-  initialPrompt: '', setInitialPrompt: () => {}, openWithPrompt: () => {},
-  messages: [], setMessages: () => {}, sendMessage: () => {},
+  setIsOpen: () => { }, setIsMinimized: () => { },
+  open: () => { }, close: () => { },
+  initialPrompt: '', setInitialPrompt: () => { }, openWithPrompt: () => { },
+  messages: [], setMessages: () => { }, sendMessage: () => { },
   status: 'idle', error: undefined,
 })
 
@@ -47,14 +48,17 @@ export function AiChatProvider({
   children: ReactNode
   initialMessages?: ChatMessage[]
 }) {
-  const [isOpen, setIsOpen]           = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
   const [initialPrompt, setInitialPrompt] = useState('')
+  const router = useRouter()
 
   const { messages, setMessages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
     messages: initialMessages.map(toUIMessage),
     onFinish: async ({ message }) => {
+      router.refresh()
+
       const text = message.parts
         .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
         .map(p => p.text)
@@ -66,7 +70,7 @@ export function AiChatProvider({
   return (
     <AiChatContext.Provider value={{
       isOpen, isMinimized, setIsOpen, setIsMinimized,
-      open:  () => { setIsOpen(true); setIsMinimized(false) },
+      open: () => { setIsOpen(true); setIsMinimized(false) },
       close: () => setIsOpen(false),
       initialPrompt, setInitialPrompt,
       openWithPrompt: (prompt) => {
