@@ -38,22 +38,31 @@ export async function updateSchedule(id: string, data: {
   description?: string | null
   start_time: string
   end_time: string
+  status?: 'Upcoming' | 'Completed' | 'Missed'
   reminder_minutes?: number | null
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthenticated')
+  
+  const updatePayload: any = {
+    title: data.title,
+    description: data.description ?? null,
+    start_time: data.start_time,
+    end_time: data.end_time,
+    reminder_minutes: data.reminder_minutes ?? null,
+  }
+
+  if (data.status) {
+    updatePayload.status = data.status
+  }
+
   const { error } = await supabase
     .from('schedules')
-    .update({
-      title: data.title,
-      description: data.description ?? null,
-      start_time: data.start_time,
-      end_time: data.end_time,
-      reminder_minutes: data.reminder_minutes ?? null,
-    })
+    .update(updatePayload)
     .eq('id', id)
     .eq('user_id', user.id)
+
   if (error) throw new Error(error.message)
   revalidatePath('/schedule')
   revalidatePath('/tasks')
