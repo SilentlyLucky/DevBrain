@@ -2,6 +2,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { revalidatePath } from 'next/cache'
+import type { ScheduleStatus, ScheduleUpdatePayload } from '@/types'
 
 const toISO = z.string().min(1).transform(s => new Date(s).toISOString())
 
@@ -38,14 +39,14 @@ export async function updateSchedule(id: string, data: {
   description?: string | null
   start_time: string
   end_time: string
-  status?: 'Upcoming' | 'Completed' | 'Missed'
+  status?: ScheduleStatus
   reminder_minutes?: number | null
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthenticated')
   
-  const updatePayload: any = {
+  const updatePayload: ScheduleUpdatePayload = {
     title: data.title,
     description: data.description ?? null,
     start_time: data.start_time,
@@ -68,7 +69,7 @@ export async function updateSchedule(id: string, data: {
   revalidatePath('/tasks')
 }
 
-export async function updateScheduleStatus(id: string, status: 'Upcoming' | 'Completed' | 'Missed') {
+export async function updateScheduleStatus(id: string, status: ScheduleStatus) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthenticated')

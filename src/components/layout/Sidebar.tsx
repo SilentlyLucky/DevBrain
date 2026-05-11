@@ -3,9 +3,8 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   Home, BookOpen, Calendar, MessageSquare, Settings,
-  LogOut, Brain, TrendingUp, FileText, CalendarClock, MessageCircle, ListTodo,
+  LogOut, Brain, FileText, CalendarClock, MessageCircle, ListTodo,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { useStorage } from '@/lib/context/StorageContext'
 import { useAiChat } from '@/lib/context/AiChatContext'
@@ -146,7 +145,6 @@ export function Sidebar({ user }: { user: UserProfile }) {
           </p>
           <div className="space-y-0.5">
             {aiNav.map(({ href, label, icon: Icon, prompt }) => {
-              const active = pathname === href
               return (
                 <Link
                   key={label}

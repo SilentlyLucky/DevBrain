@@ -3,8 +3,7 @@ import { createContext, useContext, useState, useCallback, useRef } from 'react'
 import { CheckCircle2, XCircle, AlertCircle, Info, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
-type ToastType = 'success' | 'error' | 'warning' | 'info'
+import type { ToastType } from '@/types'
 
 interface Toast {
   id: string

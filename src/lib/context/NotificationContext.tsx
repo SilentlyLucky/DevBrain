@@ -46,14 +46,14 @@ export function useNotifications() {
 }
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
-  const [notifications, setNotifications] = useState<AppNotification[]>([])
+  const [notifications, setNotifications] = useState<AppNotification[]>(() => {
+    if (typeof window === 'undefined') return []
+    return loadFromStorage()
+  })
   const timers       = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
   const missedTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
   const supabaseRef  = useRef(createClient())
 
-  useEffect(() => {
-    setNotifications(loadFromStorage())
-  }, [])
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications))

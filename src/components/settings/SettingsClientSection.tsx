@@ -8,7 +8,6 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Trash2, Pencil, Mail, Calendar as CalendarIcon, Bell } from 'lucide-react'
 import { useToast } from '@/components/ui/toast-notification'
-import { formatDateLong } from '@/lib/utils'
 
 interface Props {
   name: string

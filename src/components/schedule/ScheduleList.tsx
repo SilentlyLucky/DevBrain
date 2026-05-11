@@ -6,24 +6,22 @@ import { updateScheduleStatus, createSchedule, deleteSchedule, updateScheduleGca
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import type { Schedule } from '@/types'
+import type { Filter, Schedule } from '@/types'
 import { cn } from '@/lib/utils'
 
 function isOverdue(s: Schedule) {
   return s.status === 'Upcoming' && new Date(s.end_time) < new Date()
 }
 
-type Filter = 'All' | 'Unfinished' | 'Finished' | 'Overdue'
-
-const FILTERS: Filter[] = ['All', 'Unfinished', 'Finished', 'Overdue']
+const FILTERS: Filter[] = ['All', 'Upcoming', 'Completed', 'Missed']
 
 function applyFilter(schedules: Schedule[], filter: Filter): Schedule[] {
   const now = new Date()
   switch (filter) {
-    case 'Unfinished': return schedules.filter(s => s.status === 'Upcoming' && new Date(s.end_time) >= now)
-    case 'Finished':   return schedules.filter(s => s.status === 'Completed')
-    case 'Overdue':    return schedules.filter(s => s.status === 'Upcoming' && new Date(s.end_time) < now)
-    default:           return schedules
+    case 'Upcoming': return schedules.filter(s => s.status === 'Upcoming' && new Date(s.end_time) >= now)
+    case 'Completed': return schedules.filter(s => s.status === 'Completed')
+    case 'Missed': return schedules.filter(s => s.status === 'Upcoming' && new Date(s.end_time) < now)
+    default: return schedules
   }
 }
 
@@ -59,7 +57,7 @@ function ScheduleItem({ s, syncingId, deletingId, onSync, onDelete }: {
           <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
             <Clock className="w-3 h-3" />
             {formatDateTime(s.start_time)} - {formatDateTime(s.end_time)}
-            {overdue && <span className="ml-1 text-orange-400 font-medium">· Overdue</span>}
+            {overdue && <span className="ml-1 text-orange-400 font-medium">· Missed</span>}
           </p>
         </div>
 
@@ -103,7 +101,7 @@ function ScheduleItem({ s, syncingId, deletingId, onSync, onDelete }: {
             <span>
               <span className="font-medium text-foreground/60">Status: </span>
               <span className={overdue ? 'text-orange-400 font-medium' : ''}>
-                {overdue ? 'Overdue' : s.status}
+                {overdue ? 'Missed' : s.status}
               </span>
             </span>
             {s.gcal_event_id && <span className="text-green-400">✓ Synced to Google Calendar</span>}
@@ -182,9 +180,9 @@ export function ScheduleList({ schedules }: { schedules: Schedule[] }) {
 
   const counts: Record<Filter, number> = {
     All:        schedules.length,
-    Unfinished: applyFilter(schedules, 'Unfinished').length,
-    Finished:   applyFilter(schedules, 'Finished').length,
-    Overdue:    applyFilter(schedules, 'Overdue').length,
+    Upcoming: applyFilter(schedules, 'Upcoming').length,
+    Completed:   applyFilter(schedules, 'Completed').length,
+    Missed:    applyFilter(schedules, 'Missed').length,
   }
 
   return (
@@ -241,7 +239,7 @@ export function ScheduleList({ schedules }: { schedules: Schedule[] }) {
                 'ml-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full',
                 filter === f
                   ? 'bg-white/20 text-inherit'
-                  : f === 'Overdue'
+                  : f === 'Missed'
                     ? 'bg-orange-400/20 text-orange-400'
                     : 'bg-muted text-muted-foreground'
               )}>

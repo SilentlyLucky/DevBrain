@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache'
 import { devbrainModel, SYSTEM_PROMPT } from '@/lib/gemini'
 import { createClient } from '@/lib/supabase/server'
 import { getDocuments, getDocumentById, getSchedules, retrieveRelevantChunks } from '@/lib/dal'
+import { deleteDocument } from '@/actions/documents'
 import { z } from 'zod'
 
 export const runtime = 'nodejs'
@@ -156,6 +157,26 @@ export async function POST(req: Request) {
           },
         }),
 
+        deleteDocument: tool({
+          description: 'Delete a document from the knowledge base. Call listDocuments first to get the correct ID.',
+          inputSchema: z.object({
+            id: z.string().uuid().describe('The UUID of the document to delete'),
+          }),
+          execute: async ({ id }) => {
+            const { data: doc } = await supabase
+              .from('documents')
+              .select('title')
+              .eq('id', id)
+              .eq('user_id', user.id)
+              .single()
+
+            if (!doc) return { success: false, error: 'Document not found.' }
+
+            await deleteDocument(id)
+            return { success: true, message: `Document "${doc.title}" was deleted.` }
+          },
+        }),
+
         createSchedule: tool({
           description: "Create a task or event in the user's schedule.",
           inputSchema: z.object({
@@ -188,7 +209,7 @@ export async function POST(req: Request) {
               const { data: { session } } = await supabase.auth.getSession()
               const providerToken = session?.provider_token
               if (!providerToken) {
-                return { success: true, gcal: false, message: `Jadwal "${title}" berhasil dibuat. Google Calendar tidak tersedia - hubungkan akun Google di menu Settings terlebih dahulu.` }
+                return { success: true, gcal: false, message: `Schedule "${title}" was created. Google Calendar is not available - connect your Google account in Settings first.` }
               }
               try {
                 const { google: gapis } = await import('googleapis')
@@ -202,13 +223,13 @@ export async function POST(req: Request) {
                 if (event.data.id) {
                   await supabase.from('schedules').update({ gcal_event_id: event.data.id }).eq('id', newSchedule.id)
                 }
-                return { success: true, gcal: true, message: `Jadwal "${title}" berhasil dibuat dan ditambahkan ke Google Calendar.` }
+                return { success: true, gcal: true, message: `Schedule "${title}" was created and added to Google Calendar.` }
               } catch {
-                return { success: true, gcal: false, message: `Jadwal "${title}" berhasil dibuat. Sinkronisasi Google Calendar gagal - coba sync manual dari menu Schedule.` }
+                return { success: true, gcal: false, message: `Schedule "${title}" was created. Google Calendar sync failed - try manual sync from the Schedule menu.` }
               }
             }
 
-            return { success: true, message: `Jadwal "${title}" berhasil dibuat.` }
+            return { success: true, message: `Schedule "${title}" was created.` }
           },
         }),
 
@@ -229,7 +250,7 @@ export async function POST(req: Request) {
           execute: async ({ id, title, startTime, endTime, description, category, status, documentIds, reminderMinutes, syncWithGoogleCalendar }) => {
             // Get existing to check for gcal_event_id
             const { data: existing } = await supabase.from('schedules').select('*').eq('id', id).single()
-            if (!existing) return { success: false, error: 'Jadwal tidak ditemukan.' }
+            if (!existing) return { success: false, error: 'Schedule not found.' }
 
             const updateData: any = {}
             if (title !== undefined) updateData.title = title
@@ -271,14 +292,14 @@ export async function POST(req: Request) {
                       description: updateData.description ?? existing.description,
                     },
                   })
-                  return { success: true, message: `Jadwal "${title ?? existing.title}" berhasil diperbarui dan disinkronkan ke Google Calendar.` }
+                  return { success: true, message: `Schedule "${title ?? existing.title}" was updated and synced to Google Calendar.` }
                 } catch {
-                  return { success: true, message: `Jadwal diperbarui di database, namun sinkronisasi Google Calendar gagal.` }
+                  return { success: true, message: 'Schedule was updated in the database, but Google Calendar sync failed.' }
                 }
               }
             }
 
-            return { success: true, message: `Jadwal "${title ?? existing.title}" berhasil diperbarui.` }
+            return { success: true, message: `Schedule "${title ?? existing.title}" was updated.` }
           },
         }),
 
@@ -290,7 +311,7 @@ export async function POST(req: Request) {
           }),
           execute: async ({ id, deleteFromGoogleCalendar }) => {
             const { data: existing } = await supabase.from('schedules').select('*').eq('id', id).single()
-            if (!existing) return { success: false, error: 'Jadwal tidak ditemukan.' }
+            if (!existing) return { success: false, error: 'Schedule not found.' }
 
             const { error } = await supabase.from('schedules').delete().eq('id', id)
             if (error) return { success: false, error: error.message }
@@ -306,14 +327,14 @@ export async function POST(req: Request) {
                   auth.setCredentials({ access_token: providerToken })
                   const cal = gapis.calendar({ version: 'v3', auth })
                   await cal.events.delete({ calendarId: 'primary', eventId: existing.gcal_event_id })
-                  return { success: true, message: `Jadwal "${existing.title}" berhasil dihapus dari database dan Google Calendar.` }
+                  return { success: true, message: `Schedule "${existing.title}" was deleted from the database and Google Calendar.` }
                 } catch {
-                  return { success: true, message: `Jadwal "${existing.title}" dihapus dari database, namun gagal menghapus dari Google Calendar.` }
+                  return { success: true, message: `Schedule "${existing.title}" was deleted from the database, but failed to delete from Google Calendar.` }
                 }
               }
             }
 
-            return { success: true, message: `Jadwal "${existing.title}" berhasil dihapus.` }
+            return { success: true, message: `Schedule "${existing.title}" was deleted.` }
           },
         }),
       },
@@ -322,8 +343,8 @@ export async function POST(req: Request) {
     return result.toUIMessageStreamResponse()
   } catch (error) {
     const message = isQuotaError(error)
-      ? 'Gemini API quota habis. Tunggu beberapa menit lalu coba lagi.'
-      : 'AI tidak tersedia sementara. Coba lagi.'
+      ? 'Gemini API quota exhausted. Please wait a few minutes and try again.'
+      : 'AI is temporarily unavailable. Please try again.'
     console.error('[chat] streamText error:', error)
     return Response.json({ error: message }, { status: 503 })
   }

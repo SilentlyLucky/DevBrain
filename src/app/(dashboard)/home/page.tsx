@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { getDocuments, getSchedules, getChatMessages } from '@/lib/dal'
+import { getDocuments, getSchedules } from '@/lib/dal'
 import {
   FileText, CalendarIcon,
   BookOpen, CheckCircle2, ChevronRight,
@@ -7,10 +7,10 @@ import {
   CloudUpload, Brain, MessageSquare, Clock,
 } from 'lucide-react'
 import Link from 'next/link'
-import { LocalTimeRange } from '@/components/schedule/LocalTimeRange'
 import { QuickActions } from '@/components/dashboard/QuickActions'
+import { LocalTimeRange } from '@/components/schedule/LocalTimeRange'
 import { formatDistanceToNow } from '@/lib/utils'
-import type { Document, Schedule } from '@/types'
+import type { ActivityItem, Document, Schedule, Tone } from '@/types'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -18,10 +18,9 @@ export default async function HomePage() {
   const fullName = user?.user_metadata?.full_name ?? user?.email?.split('@')[0] ?? 'User'
   const firstName = fullName.split(' ')[0]
 
-  const [documents, schedules, messages] = await Promise.all([
+  const [documents, schedules] = await Promise.all([
     getDocuments(),
     getSchedules(),
-    getChatMessages(),
   ])
 
   const now = new Date()
@@ -31,7 +30,6 @@ export default async function HomePage() {
   const todayStr = now.toDateString()
   const upcoming = schedules.filter(s => s.status === 'Upcoming')
   const completed = schedules.filter(s => s.status === 'Completed')
-  const missed = schedules.filter(s => s.status === 'Missed')
 
   const todaySchedules = schedules
     .filter(s => new Date(s.start_time).toDateString() === todayStr)
@@ -44,7 +42,6 @@ export default async function HomePage() {
 
   const focusSessions = todaySchedules.length > 0 ? todaySchedules.slice(0, 3) : nextUpcoming
 
-  const userMessages = messages.filter(m => m.role === 'user').length
   const recentDocs = documents.slice(0, 5)
   const recentActivity = buildActivity(documents, schedules).slice(0, 5)
 
@@ -233,7 +230,10 @@ function ScheduleRow({ schedule: s }: { schedule: Schedule }) {
     Missed: 'bg-red-400/15 text-red-400',
   }
   return (
-    <div className="flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-muted/30 transition-colors">
+    <Link
+      href={`/schedule?eventId=${s.id}`}
+      className="flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-muted/30 transition-colors"
+    >
       <div className={`w-2 h-2 rounded-full shrink-0 ${s.status === 'Completed' ? 'bg-green-400' :
         s.status === 'Missed' ? 'bg-red-400' : 'bg-blue-400'
         }`} />
@@ -254,7 +254,7 @@ function ScheduleRow({ schedule: s }: { schedule: Schedule }) {
       <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold shrink-0 ${STATUS_COLOR[s.status]}`}>
         {s.status}
       </span>
-    </div>
+    </Link>
   )
 }
 
@@ -280,23 +280,6 @@ function DocumentRow({ doc }: { doc: Document }) {
     </div>
   )
 }
-
-function MiniStat({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
-  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0
-  return (
-    <div className="space-y-1.5">
-      <div className="flex justify-between items-center">
-        <span className="text-xs text-muted-foreground">{label}</span>
-        <span className="text-xs font-semibold">{value}</span>
-      </div>
-      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-        <div className={`h-full rounded-full ${color} transition-all duration-500`} style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  )
-}
-
-type ActivityItem = { type: 'document' | 'schedule'; title: string; subtitle: string; date: string }
 
 function ActivityRow({ activity: a }: { activity: ActivityItem }) {
   return (
@@ -333,12 +316,11 @@ function EmptyState({ icon, text, action }: {
   )
 }
 
-const TONES = {
+const TONES: Record<Tone, { bg: string; text: string; ring: string; glow: string }> = {
   teal: { bg: 'bg-primary/10', text: 'text-primary', ring: 'bg-primary/40', glow: 'shadow-primary/40' },
   indigo: { bg: 'bg-indigo-500/10', text: 'text-indigo-400', ring: 'bg-indigo-400/40', glow: 'shadow-indigo-400/40' },
   violet: { bg: 'bg-violet-500/10', text: 'text-violet-400', ring: 'bg-violet-400/40', glow: 'shadow-violet-400/40' },
-} as const
-type Tone = keyof typeof TONES
+}
 
 function Step({ number, icon, title, description, tone, pulseDelay }: {
   number: number; icon: React.ReactNode; title: string; description: string; tone: Tone; pulseDelay: string

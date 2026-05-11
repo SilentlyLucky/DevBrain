@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/toast-notification'
 import { CreateEventPanel } from './CreateEventPanel'
 import { EventDetailModal } from './EventDetailModal'
+import type { Filter } from '@/types'
 
 function parseCategory(desc: string | null | undefined): string | null {
   if (!desc) return null
@@ -165,11 +166,9 @@ function TaskItem({
   )
 }
 
-type FilterStatus = 'All' | 'Upcoming' | 'Completed' | 'Missed'
+const FILTERS: Filter[] = ['All', 'Upcoming', 'Completed', 'Missed']
 
-const FILTERS: FilterStatus[] = ['All', 'Upcoming', 'Completed', 'Missed']
-
-const FILTER_STYLE: Record<FilterStatus, { active: string; dot?: string }> = {
+const FILTER_STYLE: Record<Filter, { active: string; dot?: string }> = {
   All:       { active: 'bg-white/10 text-foreground border border-white/20' },
   Upcoming:  { active: 'bg-blue-500/20 text-blue-400 border border-blue-500/40', dot: 'bg-blue-400' },
   Completed: { active: 'bg-green-500/20 text-green-400 border border-green-500/40', dot: 'bg-green-400' },
@@ -180,7 +179,7 @@ export function TaskListView({ schedules }: { schedules: Schedule[] }) {
   const router = useRouter()
   const toast  = useToast()
 
-  const [filter, setFilter]           = useState<FilterStatus>('All')
+  const [filter, setFilter]           = useState<Filter>('All')
   const [query, setQuery]             = useState('')
   const [showCreate, setShowCreate]   = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Schedule | null>(null)

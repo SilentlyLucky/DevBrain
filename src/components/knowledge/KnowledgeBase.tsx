@@ -53,6 +53,24 @@ export function KnowledgeBase({ folders, documents }: Props) {
   const filterDocs = (docs: Document[]) =>
     isSearching ? docs.filter(d => d.title.toLowerCase().includes(q)) : docs
 
+  const filteredFolderGroups: Map<string, Document[]> = new Map()
+  const folderMatches: Map<string, boolean> = new Map()
+  for (const f of folders) {
+    const matches = isSearching && f.name.toLowerCase().includes(q)
+    const baseDocs = folderGroups.get(f.id) ?? []
+    filteredFolderGroups.set(f.id, matches ? baseDocs : filterDocs(baseDocs))
+    folderMatches.set(f.id, matches)
+  }
+  const filteredUncategorized = filterDocs(uncategorized)
+  const filteredFolders = isSearching
+    ? folders.filter(f =>
+      (filteredFolderGroups.get(f.id) ?? []).length > 0 || folderMatches.get(f.id)
+    )
+    : folders
+  const hasResults =
+    filteredFolders.length > 0 ||
+    filteredUncategorized.length > 0
+
   async function handleRename(name: string) {
     if (!renaming) return
     try {
@@ -117,12 +135,34 @@ export function KnowledgeBase({ folders, documents }: Props) {
         </button>
       </div>
 
+      <div className="mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search documents..."
+            className="w-full h-10 pl-9 pr-9 rounded-xl"
+          />
+          {isSearching && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-muted-foreground hover:text-foreground"
+              aria-label="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
       <div className="space-y-3">
-        {folders.map(f => (
+        {filteredFolders.map(f => (
           <FolderSection
             key={f.id}
             folder={f}
-            documents={folderGroups.get(f.id) ?? []}
+            documents={filteredFolderGroups.get(f.id) ?? []}
             allFolders={folders}
             onPreview={setPreview}
             onRename={(id, name) => setRenaming({ id, name })}
@@ -131,10 +171,10 @@ export function KnowledgeBase({ folders, documents }: Props) {
           />
         ))}
 
-        {(uncategorized.length > 0 || folders.length === 0) && (
+        {(filteredUncategorized.length > 0 || folders.length === 0) && (
           <FolderSection
             folder={null}
-            documents={uncategorized}
+            documents={filteredUncategorized}
             allFolders={folders}
             onPreview={setPreview}
             onRenameDoc={(doc) => { setEditingDoc(doc); setEditedTitle(doc.title) }}
@@ -146,11 +186,17 @@ export function KnowledgeBase({ folders, documents }: Props) {
             No documents yet. Upload a file above.
           </p>
         )}
+        {documents.length > 0 && isSearching && !hasResults && (
+          <p className="text-center text-muted-foreground py-10 text-sm">
+            No documents match your search.
+          </p>
+        )}
       </div>
 
       <NewFolderModal open={newFolderOpen} onClose={() => setNewFolderOpen(false)} />
 
       <RenameFolderDialog
+        key={`${renaming?.id ?? 'rename'}:${renaming?.name ?? ''}`}
         open={!!renaming}
         currentName={renaming?.name ?? ''}
         onClose={() => setRenaming(null)}

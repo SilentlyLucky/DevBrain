@@ -1,10 +1,31 @@
 # DevBrain
 
-A **Second Brain** web application powered by AI. DevBrain helps you store, organize, and retrieve your study materials, then lets you have conversations with an AI that has full context of everything you've saved.
+> DevBrain: Your personal productivity assistant for organizing documents, managing tasks, and turning information into action. 
+
+---
+
+Built with ❤️ for **FP Camin Alpro 2026**
+
+## What DevBrain Can Do
+
+| Capability | Summary |
+|---|---|
+| **Agentic RAG Chat** | The AI acts as an autonomous agent. It plans which tools to call, executes them in sequence (up to 8 steps), observes the results, and iterates before answering. It can retrieve document chunks, list schedules, read full documents, and even create new schedule entries, all in a single conversation turn. |
+| **Hybrid RAG Retrieval** | Document retrieval combines semantic search (pgvector cosine similarity) and keyword search (PostgreSQL full-text), fused via Reciprocal Rank Fusion (RRF), so questions answered by exact terms and conceptual questions both get accurate results. |
+| **Multi-format Knowledge Base** | Upload PDFs, DOCX, CSV, Markdown, and plain text files. Text is auto-extracted (including scanned pages via Gemini Vision), chunked, and indexed for AI retrieval. |
+| **Smart Folder Organization** | Create colored folders. On upload, AI auto-suggests the best existing folder based on document content. |
+| **Schedule & Task Management** | Create sessions, tasks, and events with reminders, status tracking, and calendar organization. |
+| **Google Calendar Sync** | DevBrain can synchronize to your Google Calendar schedules automatically. |
+| **Browser Notifications** | Scheduled reminders fire in the browser at the configured offset before each session. |
+| **Persistent Chat History** | The last 50 AI messages are stored in the database and survive page refreshes. The rolling window sends the last 20 to Gemini to stay within context limits. |
+| **AI Dashboard Insights** | Home page shows usage statistics and AI-generated productivity insights based on your documents. |
+| **Math & Code Rendering** | AI responses and document previews render LaTeX math (KaTeX) and syntax-highlighted code blocks (Shiki). |
+| **PDF Export** | Export any stored document back to a downloadable PDF from the browser. |
+
+---
 
 ## Table of Contents
 
-- [Requirement Analysis](#requirement-analysis)
 - [Tech Stack](#tech-stack)
 - [Architecture Overview](#architecture-overview)
 - [Frontend](#frontend)
@@ -17,285 +38,296 @@ A **Second Brain** web application powered by AI. DevBrain helps you store, orga
 
 ---
 
-## Requirement Analysis
-
-### Problem Statement
-
-Students and knowledge workers often struggle to organize their study materials across multiple formats (PDF, docs, md) and lack a way to query that knowledge conversationally. Existing tools either organize documents without AI retrieval, or provide AI chat without personal knowledge integration.
-
-### Core Requirements
-
-| Feature | Description |
-|---|---|
-| Knowledge Base | Upload PDFs, paste URLs, store text files with automatic text extraction |
-| AI Chat | Conversational AI with access to the user's own documents |
-| Schedule Management | Create, edit, and track study sessions with reminders |
-| Google Calendar Sync | Bi-directional sync with Google Calendar |
-| Smart Folders | AI-suggested folder categorization on document upload |
-| Notifications | Browser-based reminders for upcoming sessions |
-| Persistent Chat History | Last 50 messages stored per user across sessions |
-
-### User Flow
-
-```
-Landing Page -> Register/Login -> Dashboard
-                                    ├── Knowledge Base (upload & organize docs)
-                                    ├── Schedule (manage sessions)
-                                    ├── Tasks (kanban-style task view)
-                                    ├── Home (stats & AI insights)
-                                    ├── Chat History (past AI conversations)
-                                    └── AI Widget (floating chat, available everywhere)
-```
-
----
-
 ## Tech Stack
+
+### Core Framework
+
+| Layer | Technology | Version |
+|---|---|---|
+| Framework | Next.js (App Router) | 16.2.5 |
+| Language | TypeScript | ^5 |
+| Runtime | React | 19 |
+| Deployment | Vercel | - |
+
+### Styling & UI
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 16 (App Router) |
-| Language | TypeScript |
-| Styling | Vanilla CSS (custom design system in `globals.css`) |
-| Database | Supabase (PostgreSQL) |
-| Auth | Supabase Auth (email + Google OAuth) |
-| Storage | Supabase Storage (for PDF/binary files) |
-| AI Model | Google Gemini 2.5 Flash (`@ai-sdk/google`) |
-| Embedding Model | `gemini-embedding-2` (768-dimensional vectors) |
-| AI SDK | Vercel AI SDK (`ai` package) |
-| Vector Search | pgvector (PostgreSQL extension) |
-| External API | Google Calendar API (`googleapis`) |
-| Deployment | Vercel |
+| CSS Framework | Tailwind CSS v4 (configured via `globals.css`) |
+| Component Library | Shadcn UI (components in `src/components/ui/`) |
+| Headless Primitives | Base UI (`@base-ui/react`) |
+| Icons | Lucide React |
+| Animation | tw-animate-css |
 
+### Backend & Data
+
+| Layer | Technology |
+|---|---|
+| Database | Supabase (PostgreSQL) |
+| Auth | Supabase Auth - email + Google OAuth |
+| File Storage | Supabase Storage (PDFs, DOCX binaries) |
+| Vector Search | pgvector (PostgreSQL extension, HNSW index) |
+| ORM / Query | Supabase JS client (typed, RLS-enforced) |
+
+### AI & Document Processing
+
+| Layer | Technology |
+|---|---|
+| AI Chat Model | Google Gemini 2.5 Flash |
+| Embedding Model | `gemini-embedding-2` (768-dimensional vectors) |
+| AI SDK | Vercel AI SDK |
+| PDF Parsing | pdfjs-dist |
+| DOCX Parsing | Mammoth |
+| CSV Parsing | PapaParse |
+| Math Rendering | KaTeX |
+| Code Highlighting | Shiki |
+| Markdown | react-markdown + remark-gfm |
+| Charts | Recharts |
+| PDF Export | jsPDF |
+
+### External APIs
+
+| API | Purpose |
+|---|---|
+| Google Calendar API (`googleapis`) | Bi-directiodnal schedule sync |
+| Google Generative AI API | Gemini chat + embeddings + vision |
+
+### Testing
+
+| Tool | Purpose |
+|---|---|
+| Vitest | Unit test runner |
+| @testing-library/react | Component testing utilities |
+ 
 ---
 
 ## Architecture Overview
 
 ```
-Browser (Client)
-    │
-    ├── Next.js Pages (React Server Components)
-    │       │
-    │       └── Server Actions (mutations)
-    │
-    ├── API Routes (streaming/external)
-    │       ├── /api/chat            -> AI streaming chat
-    │       ├── /api/describe-images -> Gemini Vision for PDF images
-    │       ├── /api/suggest-folder  -> AI folder suggestion
-    │       └── /api/calendar        -> Google Calendar sync
-    │
-    └── Supabase (BaaS)
-            ├── PostgreSQL (main data)
-            ├── pgvector (embeddings for RAG)
-            ├── Row Level Security (per-user data isolation)
-            └── Storage Bucket (binary files: PDFs, DOCX)
+┌─────────────────────────────────────────────────────────────────┐
+│                        Browser (Client)                         │
+│                                                                 │
+│  React Server Components     Client Components                  │
+│  (reads via DAL)             (forms, modals, AI widget)         │
+└────────────┬────────────────────────┬───────────────────────────┘
+             │ Server Actions (CRUD)  │ fetch() / useActionState
+             ▼                        ▼
+┌────────────────────────┐   ┌────────────────────────────────────┐
+│   Next.js Server       │   │         API Routes                 │
+│   Actions              │   │                                    │
+│   src/actions/         │   │  POST /api/chat                    │
+│   ├── schedules.ts     │   │    └─ Gemini stream via AI SDK     │
+│   ├── folders.ts       │   │  POST /api/describe-images         │
+│   ├── documents.ts     │   │    └─ Gemini Vision (scanned PDFs) │
+│   └── chat.ts          │   │  POST /api/suggest-folder          │
+│                        │   │    └─ AI folder classification     │
+│   Data reads via       │   │  POST /api/calendar                │
+│   src/lib/dal.ts       │   │    └─ Google Calendar OAuth sync   │
+└────────────┬───────────┘   └───────────────┬────────────────────┘
+             │                               │
+             ▼                               ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Supabase (BaaS)                              │
+│                                                                 │
+│  PostgreSQL           pgvector              Storage Bucket      │
+│  ├── profiles         ├── document_chunks   └── PDFs, DOCX      │
+│  ├── documents            (vector 768)                          │
+│  ├── document_chunks  Realtime                                  │
+│  ├── document_folders └── schedules table                       │
+│  ├── folders          RLS                                       │
+│  ├── schedules        └── all queries scoped to auth.uid()      │
+│  └── chat_messages                                              │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-DevBrain uses **Next.js Server Actions** for all standard CRUD operations and **API Routes** only for streaming responses (AI chat) and complex external integrations (Google Calendar).
+**Key architectural rule:** Server Components read data directly through `lib/dal.ts`. All mutations go through Server Actions in `src/actions/`. API Routes are only used for streaming (AI chat) and complex external integrations (Google Calendar).
 
 ---
 
 ## Frontend
 
-### Routing Structure
+### Route Groups
 
 ```
 src/app/
-├── page.tsx                    # Landing page (public)
+├── page.tsx                        # Landing page (public)
 ├── (auth)/
 │   ├── login/page.tsx
 │   ├── register/page.tsx
 │   ├── forgot-password/page.tsx
 │   └── reset-password/page.tsx
 └── (dashboard)/
-    ├── layout.tsx              # Shared sidebar + AI widget
-    ├── home/page.tsx           # Stats & AI insights
-    ├── knowledge/page.tsx      # Document library
-    ├── schedule/page.tsx       # Calendar view
-    ├── tasks/page.tsx          # Task list view
-    ├── chat-history/page.tsx   # Persistent chat log
-    └── settings/page.tsx       # Profile & integrations
+    ├── layout.tsx                  # Sidebar + floating AI widget (always mounted)
+    ├── home/page.tsx               # Stats cards + AI-generated insights
+    ├── knowledge/page.tsx          # Document library grouped by folder
+    ├── schedule/page.tsx           # Calendar grid + upcoming sessions panel
+    ├── tasks/page.tsx              # Task list (Today / Tomorrow / This Week)
+    ├── chat-history/page.tsx       # Persistent AI conversation log
+    └── settings/page.tsx           # Profile + Google Calendar integration
 ```
 
 ### Design System
 
-All design tokens are declared in `src/app/globals.css` using CSS custom properties:
+Tailwind v4 tokens are declared as CSS custom properties inside `@theme {}` in `src/app/globals.css`:
 
 ```css
---color-primary: #00E5FF;
---color-surface: #020817;
---color-surface-2: #0B1324;
---color-muted: #132238;
+--color-primary:   #00E5FF;   /* cyan accent */
+--color-surface:   #020817;   /* darkest background */
+--color-surface-2: #0B1324;   /* card background */
+--color-muted:     #132238;   /* subtle borders */
 --color-foreground: #FFFFFF;
 ```
 
-The landing page features animated hero visuals built purely in CSS and SVG - no external animation libraries. Key animations include orbital rings, floating icon plates, lightning strikes, and a custom cursor layer system (`LandingCursor.tsx`).
+The landing page hero animations (orbital rings, floating icon plates, lightning strikes) are built purely in CSS and SVG - no external animation libraries.
 
-### Component Architecture
+### Component Map
 
 ```
 src/components/
-├── ai-widget/          # Floating AI chat panel (draggable, resizable)
-│   ├── AiWidget.tsx    # Main wrapper with drag/resize logic
-│   ├── ChatWindow.tsx  # Active chat UI
-│   ├── ChatHistoryClient.tsx
-│   └── MessageBubble.tsx
 │
-├── knowledge/          # Document library
-│   ├── KnowledgeBase.tsx     # Page root, groups docs by folder
-│   ├── FolderSection.tsx     # Collapsible folder with doc list
-│   ├── DropZone.tsx          # File upload + AI folder suggestion
-│   ├── DocumentTable.tsx     # Flat table view for uncategorized docs
+├── ai-widget/              # Floating AI chat panel (draggable + resizable)
+│   ├── AiWidget.tsx        # Drag/resize state, panel show/hide
+│   ├── ChatWindow.tsx      # Message list, input, streaming display
+│   ├── ChatHistoryClient.tsx
+│   └── MessageBubble.tsx   # Markdown + math + code rendering per message
+│
+├── knowledge/
+│   ├── KnowledgeBase.tsx   # Groups docs by folder
+│   ├── FolderSection.tsx   # Collapsible folder with document list
+│   ├── DropZone.tsx        # Drag-and-drop upload + AI folder suggestion
+│   ├── DocumentTable.tsx   # Flat table for uncategorized documents
 │   └── FolderManagerDropdown.tsx
 │
-├── schedule/           # Schedule management
-│   ├── ScheduleDashboard.tsx # Calendar grid + upcoming panel
-│   ├── ScheduleList.tsx      # Filterable list (All/Unfinished/Finished/Overdue)
-│   ├── TaskListView.tsx      # Grouped task view (Today/Tomorrow/This Week)
-│   ├── LocalTimeRange.tsx    # Get local time
-│   └── EventDetailModal.tsx  # View/edit modal for single event
+├── schedule/
+│   ├── ScheduleDashboard.tsx   # Calendar grid + upcoming panel
+│   ├── ScheduleList.tsx        # Filterable list (All / Unfinished / Finished / Overdue)
+│   ├── TaskListView.tsx        # Grouped by Today / Tomorrow / This Week
+│   ├── LocalTimeRange.tsx      # Formats times in user's local timezone
+│   └── EventDetailModal.tsx    # View + inline-edit modal for a single event
 │
-├── landing/            # Landing page components
-│   ├── BrainHeroVisual.tsx   # SVG animated brain diagram
-│   └── LandingCursor.tsx     # Three-layer custom cursor
+├── landing/
+│   ├── BrainHeroVisual.tsx     # Animated SVG brain diagram
+│   └── LandingCursor.tsx       # Three-layer custom cursor effect
 │
-├── layout/             # App chrome
-│   ├── Sidebar.tsx
-│   └── NotificationBell.tsx  # Reminder dropdown
+├── layout/
+│   ├── Sidebar.tsx             # Navigation + storage usage bar
+│   └── NotificationBell.tsx    # Reminder dropdown
 │
-├── auth/               # Auth forms
+├── auth/
 │   ├── LoginForm.tsx
 │   └── RegisterForm.tsx
 │
 ├── settings/
 │   └── SettingsClientSection.tsx
 │
-└── ui/                 # Shared primitives
+└── ui/                         # Shared primitives (Shadcn-based)
     ├── button.tsx
     └── toast-notification.tsx
 ```
 
 ### State Management
 
-DevBrain uses **React Context** (no external state library) for cross-component shared state:
+React Context only:
 
-| Context | Location | Purpose |
+| Context | File | Purpose |
 |---|---|---|
-| `AiChatContext` | `src/lib/context/AiChatContext.tsx` | Shares AI message stream state between `AiWidget` and `ChatHistoryClient` |
-| `StorageContext` | `src/lib/context/StorageContext.tsx` | Tracks Supabase Storage usage for the sidebar storage bar |
-| `NotificationContext` | `src/lib/context/NotificationContext.tsx` | Manages scheduled reminders using `setTimeout` |
+| `AiChatContext` | `src/lib/context/AiChatContext.tsx` | Shares AI message stream between `AiWidget` and `ChatHistoryClient` |
+| `StorageContext` | `src/lib/context/StorageContext.tsx` | Tracks Supabase Storage usage for the sidebar progress bar |
+| `NotificationContext` | `src/lib/context/NotificationContext.tsx` | Drives browser reminders using `setTimeout` per schedule |
 
 ---
 
 ## Backend & Server Actions
 
-### Server Actions (CRUD)
+### Server Actions (Mutations)
 
-Server Actions run on the server and are called directly from client components using `'use server'`. They always validate the authenticated user via `supabase.auth.getUser()` before touching the database.
+All actions authenticate the user via `supabase.auth.getUser()` before touching the database.
 
 **`src/actions/schedules.ts`**
-
 ```typescript
-createSchedule(formData)         // Validate with Zod, insert to DB
-updateSchedule(id, data)         // Update title/time/reminder
-updateScheduleStatus(id, status) // Mark as Completed/Missed/Upcoming
-deleteSchedule(id)               // Also deletes from Google Calendar if synced
-importSchedulesFromGcal(events)  // Deduplicated import from Google
+createSchedule(formData)          // Zod-validated insert
+updateSchedule(id, data)          // Update title / time / reminder offset
+updateScheduleStatus(id, status)  // Completed | Missed | Upcoming
+deleteSchedule(id)                // Also removes linked Google Calendar event
+importSchedulesFromGcal(events)   // Deduplicated import (keyed on gcal_event_id)
 ```
 
 **`src/actions/folders.ts`**
-
 ```typescript
-createFolder(formData)                           // Create named + colored folder
+createFolder(formData)                        // Named + colored folder
 renameFolder(id, name)
-deleteFolder(id)                                 // Cascades to document_folders
-setDocumentFolders(documentId, folderIds[])      // Replace all folder assignments atomically
+deleteFolder(id)                              // Cascades to document_folders junction
+setDocumentFolders(documentId, folderIds[])   // Atomically replaces all folder assignments
 addDocumentToFolder(documentId, folderId)
 removeDocumentFromFolder(documentId, folderId)
 ```
 
-**`src/actions/documents.ts`** (document save + embed pipeline)
+**`src/actions/documents.ts`** - Document save + embed pipeline
 
-When a document is saved, it triggers:
-1. Insert document record to `documents` table
-2. Chunk the text with `chunkText()`
-3. Embed each chunk via `embedChunks()` using Gemini
-4. Batch-insert all chunks with vectors to `document_chunks`
+```
+Upload
+  └─ 1. Insert document record into `documents`
+  └─ 2. chunkText()   -> split into 1500-char chunks with 150-char overlap
+  └─ 3. embedChunks() -> Gemini embedding-2 -> vector(768) per chunk
+  └─ 4. Batch insert chunks into `document_chunks`
+```
 
 ### API Routes
 
-**`POST /api/chat`** - Streaming AI chat
-- Authenticates user via Supabase session
-- Passes last 20 messages to `streamText()` with 5 AI tools available
-- Streams the response back to the browser using Vercel AI SDK's `UIMessageStreamResponse`
-
-**`POST /api/describe-images`** - PDF image analysis
-- Receives base64-encoded page images from the client
-- Calls Gemini Vision to generate text descriptions
-- Returns descriptions to be merged into the document's text content
-
-**`POST /api/suggest-folder`** - AI folder suggestion
-- Receives document title, content preview, and list of existing folder names
-- Calls Gemini to pick the best matching folder
-- Returns `{ suggestion: string | null }`
-
-**`POST /api/calendar`** - Google Calendar sync
-- Uses the OAuth `provider_token` from the user's Supabase session
-- Pushes DevBrain schedules to Google Calendar
-- Pulls new Google Calendar events back into DevBrain (deduplication by `gcal_event_id`)
+| Route | Method | Purpose |
+|---|---|---|
+| `/api/chat` | POST | Streaming AI chat with up to 8 tool steps |
+| `/api/describe-images` | POST | Gemini Vision analysis of base64-encoded PDF page images |
+| `/api/suggest-folder` | POST | AI picks the best matching folder name` |
+| `/api/calendar` | POST | Google Calendar OAuth sync schedules |
 
 ### Data Access Layer
 
-`src/lib/dal.ts` centralizes all read queries. React's `cache()` wrapper is used on frequently-called functions to deduplicate requests within a single render pass (important for React Server Components).
+`src/lib/dal.ts` centralizes all read queries. React's `cache()` deduplicates calls within a single server render pass.
 
 ```typescript
-getDocuments()             // List docs (no content field for performance)
-getDocumentById(id)        // Single doc with full content
-getSchedules()             // All schedules ordered by start_time
-getChatMessages()          // Last 50 messages
-getFolders()               // All folders
-getDocumentsWithFolders()  // Docs with their folder assignments joined
-retrieveRelevantChunks(query) // Hybrid RAG search (see AI section)
+getDocuments()                  // List dcouments
+getDocumentById(id)             // Single document with full text content
+getSchedules()                  // All schedules, ordered by start_time
+getChatMessages()               // Last 50 messages per user
+getFolders()                    // List folder
+getDocumentsWithFolders()       // Docs with folder assignments joined
+retrieveRelevantChunks(query)   // Hybrid RAG: semantic + keyword -> RRF fusion
 ```
 
 ---
 
 ## AI Implementation
 
-### RAG Pipeline (Retrieval-Augmented Generation)
+### Hybrid Agentic RAG Pipeline
 
-DevBrain uses a **Hybrid RAG** system that combines two retrieval methods, fused with **Reciprocal Rank Fusion (RRF)**:
+**Illustration**
+
+![RAG Pipeline](Assets/Pipeline AI.png)
 
 ```
 User Query
     │
-    ├── Semantic Search (pgvector cosine similarity)
-    │       Query -> Embed with gemini-embedding-2 -> vector(768)
-    │       Compare against stored chunk embeddings
+    ├─── Semantic Search ──────────────────────────────────┐
+    │    embedQuery(query) -> vector(768)                  │
+    │    pgvector cosine similarity vs stored chunks       │
+    │                                                      │
+    └─── Keyword Search ───────────────────────────────────┤
+         plainto_tsquery('simple', query)                  │
+         GIN index on tsvector column                      │
+                                                           │
+    ┌──────────────────────────────────────────────────────┘
     │
-    └── Keyword Search (PostgreSQL full-text search)
-            Query -> plainto_tsquery('simple', query)
-            Match against tsvector GIN index on chunks
-    │
-    └── RRF Fusion: score = 1/(k + rank_semantic) + 1/(k + rank_keyword)
-            where k = 60
-    │
-    └── Top 15 chunks returned, grouped by document title
+    └─── RRF Fusion
+         score = 1/(60 + rank_semantic) + 1/(60 + rank_keyword)
+         Top 15 chunks returned, grouped by document title
 ```
 
-**Text Chunking** (`src/lib/chunker.ts`):
-- Max chunk size: 1500 characters
-- Overlap between chunks: 150 characters
-- Splits on paragraph boundaries (`\n\n`) before hard-cutting
-- Overlap preserves context across chunk boundaries
+**Chunking** (`src/lib/chunker.ts`): 1500-char max, 150-char overlap, splits on paragraph boundaries before hard-cutting.
 
-**Embedding** (`src/lib/embeddings.ts`):
-- Model: `gemini-embedding-2`
-- Dimensions: 768 (truncated to fit pgvector index)
-- `embedChunks()`: batch embed at document save time
-- `embedQuery()`: embed user query at search time
+**Embedding** (`src/lib/embeddings.ts`): `gemini-embedding-2`, 768 dimensions. `embedChunks()` runs at save time; `embedQuery()` runs at search time.
 
-**Database function** (`supabase/migrations/init.sql`):
-
+**SQL function** in `supabase/migrations/init.sql`:
 ```sql
 CREATE OR REPLACE FUNCTION match_chunks_hybrid(
   query_embedding vector(768),
@@ -307,63 +339,61 @@ CREATE OR REPLACE FUNCTION match_chunks_hybrid(
 RETURNS TABLE (content text, document_title text, rrf_score double precision)
 ```
 
-### AI Chat with Tools (`/api/chat`)
+### AI Chat Tools (`/api/chat`)
 
-The AI model (`gemini-2.5-flash`) is given a detailed system prompt and 5 callable tools:
+The model (`gemini-2.5-flash`) receives a structured system prompt and 8 callable tools:
 
-| Tool | When Used |
+| Tool | Triggered when |
 |---|---|
-| `retrieveContext` | Any question about document content - called first before answering |
-| `listDocuments` | When user asks what's in their knowledge base |
-| `getDocumentContent` | When user explicitly wants to read a full document |
+| `retrieveContext` | Any document question - called first, before answering |
+| `listDocuments` | User asks what's in their knowledge base |
+| `getDocumentContent` | User wants to read a full specific document |
 | `listSchedules` | Any question about schedules or tasks |
 | `createSchedule` | After confirming all details with the user |
+| `updateSchedule` | User asks to change an existing schedule |
+| `deleteSchedule` | After user confirms deleting a schedule |
+| `deleteDocument` | After user confirms deleting a document |
 
-The AI follows a strict **reasoning chain** defined in `SYSTEM_PROMPT`:
-1. For document questions -> `retrieveContext` first, then answer with source attribution
-2. For schedule questions -> `listSchedules`, answer from real data
-3. For schedule creation -> collect all fields in one message, confirm, then `createSchedule`
-4. Never gives up without trying at least one follow-up strategy
+Tool calling is capped at **8 steps** (`stopWhen: stepCountIs(8)`) to prevent loops. The rolling context window sends the **last 20 messages** to Gemini; the **last 50** are stored in the database.
 
-Multi-step tool calling is capped at **8 steps** (`stopWhen: stepCountIs(8)`) to prevent infinite loops.
+### PDF Image Analysis (Gemini Vision)
 
-### PDF Image Analysis
-
-For scanned PDFs or image-heavy pages, DevBrain uses Gemini Vision:
-
-1. `src/lib/pdf-parser.ts` detects image-heavy pages (text-to-image ratio)
-2. Those pages are rendered to canvas at 2x resolution
-3. Canvas data is base64-encoded and sent to `/api/describe-images`
-4. Gemini Vision generates text descriptions
-5. Descriptions are appended to the document's text content before indexing
+For scanned or image-heavy PDFs:
+1. `src/lib/pdf-parser.ts` detects pages where the text-to-image ratio is low
+2. Those pages are rendered to canvas at 2× resolution
+3. Canvas data is base64-encoded and posted to `/api/describe-images`
+4. Gemini Vision returns text descriptions
+5. Descriptions are appended to the document's text content before chunking and indexing
 
 ### Smart Folder Suggestion
 
-When a file is uploaded, `DropZone.tsx` fires a background request to `/api/suggest-folder` with the document title and first 500 characters of content. Gemini picks the best matching folder name from the user's existing folders, or returns `null` if none match. If `null`, the UI shows a nudge to create a new folder.
+On file upload, `DropZone.tsx` fires a background request to `/api/suggest-folder` with the document title and first 500 characters. Gemini selects the best existing folder name, or returns `null`. When `null`, the UI nudges the user to create a new folder.
 
 ---
 
 ## Database Schema
 
-All tables use Row Level Security (RLS) - every query is automatically scoped to the authenticated user.
+Every table is protected by **Row Level Security (RLS)** - all queries are automatically scoped to the authenticated user's `auth.uid()`.
 
 ```sql
 profiles          -- Extends auth.users; auto-created on signup via trigger
-documents         -- User documents (text content + metadata)
-document_chunks   -- Text chunks with vector(768) embeddings for RAG
-document_folders  -- Junction table: many-to-many documents <-> folders
-folders           -- Named, colored folders for document organization
-schedules         -- Study sessions with status tracking + Google Calendar link
-chat_messages     -- Persistent AI conversation history (last 50 per user)
+documents         -- Stored documents (text content + metadata)
+document_chunks   -- RAG chunks with vector(768) embeddings
+document_folders  -- Junction: many-to-many documents <-> folders
+folders           -- Named, colored folders
+schedules         -- Study sessions with status + gcal_event_id
+chat_messages     -- Persistent AI conversation history (last 50)
 ```
 
-**Key indexes:**
-- `document_chunks_embedding_idx` - HNSW index for fast cosine similarity search
-- `document_chunks_fts_idx` - GIN index on `tsvector` for full-text search
-- `schedules_start_time_idx` - For chronological schedule queries
+**Indexes:**
 
-**Realtime:**
-- `schedules` table is added to `supabase_realtime` for live status updates
+| Index | Type | Purpose |
+|---|---|---|
+| `document_chunks_embedding_idx` | HNSW (pgvector) | Fast cosine similarity search |
+| `document_chunks_fts_idx` | GIN (tsvector) | Full-text keyword search |
+| `schedules_start_time_idx` | B-tree | Chronological schedule queries |
+
+**Realtime:** `schedules` table is published to `supabase_realtime` for live status updates.
 
 ---
 
@@ -372,29 +402,44 @@ chat_messages     -- Persistent AI conversation history (last 50 per user)
 ```
 devbrain/
 ├── src/
-│   ├── app/                  # Next.js App Router pages + API routes
-│   ├── actions/              # Next.js Server Actions (CRUD)
-│   ├── components/           # React components
+│   ├── app/
+│   │   ├── page.tsx              # Landing page
+│   │   ├── (auth)/               # Login, register, password reset
+│   │   ├── (dashboard)/          # Protected routes + shared layout
+│   │   └── api/                  # chat, describe-images, suggest-folder, calendar
+│   │
+│   ├── actions/                  # Server Actions (all mutations)
+│   │   ├── schedules.ts
+│   │   ├── folders.ts
+│   │   ├── documents.ts
+│   │   └── chat.ts
+│   │
+│   ├── components/               # React components (see Component Map) [Component Map](#-Component-Map)
+│   │
 │   ├── lib/
-│   │   ├── chunker.ts        # Text splitting for RAG
-│   │   ├── dal.ts            # Data access layer (all read queries)
-│   │   ├── embeddings.ts     # Gemini embedding wrappers
-│   │   ├── gemini.ts         # AI model config + system prompt
-│   │   ├── pdf-parser.ts     # PDF text extraction + image detection
-│   │   ├── file-parser.ts    # Multi-format file parser dispatcher
-│   │   ├── pdf-export.ts     # PDF download from document content
-│   │   ├── utils.ts          # Date formatting, className helpers
-│   │   ├── context/          # React Context providers
-│   │   └── supabase/         # Supabase client factory (server + browser)
-│   └── types/
-│       └── index.ts          # Shared TypeScript interfaces
+│   │   ├── dal.ts                # All read queries (React cache-wrapped)
+│   │   ├── chunker.ts            # Text splitting for RAG
+│   │   ├── embeddings.ts         # Gemini embedding wrappers
+│   │   ├── gemini.ts             # Model config + system prompt
+│   │   ├── pdf-parser.ts         # PDF text extraction + image detection
+│   │   ├── file-parser.ts        # Multi-format parser dispatcher (PDF/DOCX/CSV/MD/TXT)
+│   │   ├── pdf-export.ts         # PDF download from document content (jsPDF)
+│   │   ├── utils.ts              # Date formatting, className helpers
+│   │   ├── context/              # AiChatContext, StorageContext, NotificationContext
+│   │   └── supabase/             # Supabase client factory (server + browser variants)
+│   │
+│   ├── types/
+│   │   └── index.ts              # Shared TypeScript interfaces
+│   │
+│   └── __tests__/
+│       └── chunker.test.ts       # Vitest unit tests for text chunking
+│
 ├── supabase/
 │   └── migrations/
-│       └── init.sql          # Complete DB schema (safe to run multiple times)
-├── public/
-│   └── pdf.worker.min.mjs    # PDF.js worker (required for client-side PDF parsing)
-└── src/__tests__/
-    └── chunker.test.ts       # Unit tests for text chunking logic
+│       └── init.sql              # Full schema
+│
+└── public/
+    └── pdf.worker.min.mjs        # PDF.js worker (required for client-side PDF parsing)
 ```
 
 ---
@@ -404,7 +449,7 @@ devbrain/
 ### Prerequisites
 
 - Node.js 20+
-- A [Supabase](https://supabase.com) project
+- A [Supabase](https://supabase.com) project with the `pgvector` extension enabled
 - A Google Cloud project with **Generative AI API** and **Google Calendar API** enabled
 
 ### Installation
@@ -417,12 +462,10 @@ npm install
 
 ### Database Setup
 
-Run the migration file once on your Supabase project:
-
 1. Open your Supabase project -> SQL Editor
-2. Paste and run the contents of `supabase/migrations/init.sql`
+2. Paste and run `supabase/migrations/init.sql`
 
-This creates all tables, RLS policies, indexes, the `match_chunks_hybrid` function, and the storage bucket.
+This creates all tables, RLS policies, indexes, the `match_chunks_hybrid` stored function, and the storage bucket in one shot.
 
 ### Running Locally
 
@@ -435,22 +478,29 @@ Open [http://localhost:3000](http://localhost:3000).
 ### Running Tests
 
 ```bash
-npm test
+npm test            # Run once
+npm run test:watch  # Watch mode
 ```
 
 ---
 
 ## Environment Variables
 
-Create a `.env.local` file in the project root:
+Create `.env.local` in the project root:
 
 ```env
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
-# Google Gemini AI
+# Google Gemini AI (server-onl)
 GOOGLE_GENERATIVE_AI_API_KEY=your-gemini-api-key
+
+# Public app URL (used for OAuth redirects)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-**Google OAuth** (for Google Calendar integration) must be configured in your Supabase project under Authentication -> Providers -> Google. The Calendar API scope (`https://www.googleapis.com/auth/calendar`) must be added there.
+**Google OAuth** for Calendar sync must be configured in Supabase under Authentication -> Providers -> Google. Add the Calendar API scope (`https://www.googleapis.com/auth/calendar`) in the Google Cloud OAuth consent screen.
+
+---
+

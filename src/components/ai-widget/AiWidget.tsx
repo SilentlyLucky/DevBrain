@@ -4,13 +4,12 @@ import { Brain, Minus, X, Maximize2, Minimize2 } from 'lucide-react'
 import { ChatWindow } from './ChatWindow'
 import { useAiChat } from '@/lib/context/AiChatContext'
 import { cn } from '@/lib/utils'
+import type { ResizeDir } from '@/types'
 
 const MIN_W = 280
 const MAX_W = 720
 const MIN_H = 300
 const MAX_H = 860
-
-type ResizeDir = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw'
 
 const CURSOR: Record<ResizeDir, string> = {
   n: 'cursor-ns-resize',   s: 'cursor-ns-resize',

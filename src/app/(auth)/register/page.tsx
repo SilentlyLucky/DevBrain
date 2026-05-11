@@ -4,7 +4,7 @@ import { RegisterForm } from '@/components/auth/RegisterForm'
 import React from 'react'
 
 const CHIPS = [
-  { icon: <Calendar className="w-4 h-4" />, style: { top: '-6%', left: '50%', transform: 'translateX(-50%)' }, hue: 195 },
+  { icon: <Calendar className="w-4 h-4" />, style: { top: '-14%', left: '50%', transform: 'translateX(-50%)' }, hue: 195 },
   { icon: <FileText className="w-4 h-4" />, style: { top: '14%', left: '-12%' }, hue: 280 },
   { icon: <TrendingUp className="w-4 h-4" />, style: { top: '14%', right: '-12%' }, hue: 145 },
   { icon: <Pencil className="w-4 h-4" />, style: { top: '58%', left: '-10%' }, hue: 45 },

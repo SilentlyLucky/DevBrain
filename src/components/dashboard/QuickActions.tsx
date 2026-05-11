@@ -1,9 +1,10 @@
 'use client'
 import Link from 'next/link'
 import {
-  Upload, MessageSquare, Calendar as CalendarIcon, ChevronRight,
+  Upload, MessageSquare, Calendar as CalendarIcon, Settings, ChevronRight,
 } from 'lucide-react'
 import { useAiChat } from '@/lib/context/AiChatContext'
+import type { QuickActionProps } from '@/types'
 
 export function QuickActions() {
   const { open } = useAiChat()
@@ -14,7 +15,7 @@ export function QuickActions() {
         href="/knowledge"
         icon={<Upload className="w-5 h-5" />}
         title="Upload PDF"
-        description="Add new documents to your knowledge base"
+        description="Add new documents"
       />
       <ActionButton
         onClick={open}
@@ -28,11 +29,17 @@ export function QuickActions() {
         title="Create Schedule"
         description="Generate your daily plan"
       />
+      <ActionLink
+        href="/settings"
+        icon={<Settings className="w-5 h-5" />}
+        title="Profile Settings"
+        description="Set up your profile"
+      />
     </div>
   )
 }
 
-function ActionLink(props: ActionProps & { href: string }) {
+function ActionLink(props: QuickActionProps & { href: string }) {
   return (
     <Link href={props.href} className={CLASSES}>
       <ActionContent {...props} />
@@ -40,7 +47,7 @@ function ActionLink(props: ActionProps & { href: string }) {
   )
 }
 
-function ActionButton(props: ActionProps & { onClick: () => void }) {
+function ActionButton(props: QuickActionProps & { onClick: () => void }) {
   return (
     <button onClick={props.onClick} className={`${CLASSES} w-full text-left`}>
       <ActionContent {...props} />
@@ -51,9 +58,7 @@ function ActionButton(props: ActionProps & { onClick: () => void }) {
 const CLASSES =
   'flex items-center gap-3 p-3 rounded-xl border border-muted hover:border-primary/40 hover:bg-muted/30 transition-colors group'
 
-type ActionProps = { icon: React.ReactNode; title: string; description: string }
-
-function ActionContent({ icon, title, description }: ActionProps) {
+function ActionContent({ icon, title, description }: QuickActionProps) {
   return (
     <>
       <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">

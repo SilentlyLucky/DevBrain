@@ -1,20 +1,13 @@
 'use client'
 
 import { useState, useMemo, useRef, useEffect } from 'react'
-import {
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-  ArrowRight,
-  Calendar as CalendarIcon,
-} from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { ChevronLeft, ChevronRight, Plus, ArrowRight, Calendar as CalendarIcon, } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import type { Schedule } from '@/types'
+import type { Schedule, CalView } from '@/types'
 import { useToast } from '@/components/ui/toast-notification'
 import { CreateEventPanel } from './CreateEventPanel'
 import { DayEventsPanel } from './DayEventsPanel'
@@ -30,25 +23,6 @@ const GoogleIcon = () => (
     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
   </svg>
 )
-
-const DOCKER_COLOR = "bg-blue-500"
-const NEXTJS_COLOR = "bg-cyan-400"
-const PRISMA_COLOR = "bg-blue-600"
-const SYSTEM_DESIGN_COLOR = "bg-purple-500"
-const TYPESCRIPT_COLOR = "bg-green-500"
-const JWT_COLOR = "bg-green-600"
-const DEFAULT_COLOR = "bg-orange-400"
-
-function getEventColor(title: string) {
-  const t = title.toLowerCase()
-  if (t.includes('docker')) return DOCKER_COLOR
-  if (t.includes('next.js')) return NEXTJS_COLOR
-  if (t.includes('prisma')) return PRISMA_COLOR
-  if (t.includes('system design')) return SYSTEM_DESIGN_COLOR
-  if (t.includes('typescript')) return TYPESCRIPT_COLOR
-  if (t.includes('jwt') || t.includes('auth')) return JWT_COLOR
-  return DEFAULT_COLOR
-}
 
 function getEventDotClass(title: string) {
   const t = title.toLowerCase()
@@ -82,7 +56,15 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
   const firstDay = getFirstDayOfMonth(year, month)
   const prevMonthDays = getDaysInMonth(year, month - 1)
 
-  const today = new Date()
+  const [today, setToday] = useState(new Date())
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setToday(new Date())
+    }, 60000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   const calendarCells = useMemo(() => {
     const cells = []
@@ -114,14 +96,19 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
   const toast = useToast()
   const [syncing, setSyncing] = useState(false)
   const [showCreatePanel, setShowCreatePanel] = useState(false)
-  type CalView = 'month' | 'week' | 'day'
   const [calendarView, setCalendarView] = useState<CalView>('month')
   const [showAllUpcoming, setShowAllUpcoming] = useState(false)
   const [showMonthPicker, setShowMonthPicker] = useState(false)
   const [pickerYear, setPickerYear] = useState(year)
   const [selectedDay, setSelectedDay]     = useState<Date | null>(null)
-  const [selectedEvent, setSelectedEvent] = useState<Schedule | null>(null)
+  const [manualSelectedEvent, setManualSelectedEvent] = useState<Schedule | null>(null)
   const pickerRef = useRef<HTMLDivElement>(null)
+  const searchParams = useSearchParams()
+  const selectedEvent = useMemo(() => {
+    const eventId = searchParams.get('eventId')
+    if (eventId) return schedules.find(s => s.id === eventId) ?? null
+    return manualSelectedEvent
+  }, [searchParams, schedules, manualSelectedEvent])
 
   // Close month picker on outside click
   useEffect(() => {
@@ -150,8 +137,7 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
       d.setDate(start.getDate() + i)
       return d
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [today])
 
   const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1))
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1))
@@ -168,7 +154,7 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
   }
 
   // Today's Agenda derived data
-  const todayStr = new Date().toDateString()
+  const todayStr = today.toDateString()
   const todaySchedules = schedules
     .filter(s => new Date(s.start_time).toDateString() === todayStr)
     .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
@@ -176,14 +162,26 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
   const AGENDA_COLORS = ['text-cyan-400', 'text-purple-500', 'text-orange-400', 'text-blue-500']
 
   // Upcoming This Week derived data
-  const nowMs = Date.now()
+  const upcomingWeek = useMemo(() => {
+  const nowMs = today.getTime()
   const weekFromNow = nowMs + 7 * 24 * 60 * 60 * 1000
-  const upcomingWeek = schedules
+
+  return schedules
     .filter(s => {
       const t = new Date(s.start_time).getTime()
-      return s.status === 'Upcoming' && t >= nowMs && (showAllUpcoming || t <= weekFromNow)
+
+      return (
+        s.status === 'Upcoming' &&
+        t >= nowMs &&
+        (showAllUpcoming || t <= weekFromNow)
+      )
     })
-    .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.start_time).getTime() -
+        new Date(b.start_time).getTime()
+    )
+  }, [schedules, showAllUpcoming, today])
 
   async function handleSync() {
     setSyncing(true)
@@ -396,7 +394,7 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
                     {dayEvts.length === 0
                       ? <p className="text-xs text-muted-foreground/60 italic">No sessions</p>
                       : dayEvts.map(evt => (
-                          <button key={evt.id} onClick={e => { e.stopPropagation(); setSelectedEvent(evt) }}
+                          <button key={evt.id} onClick={e => { e.stopPropagation(); setManualSelectedEvent(evt) }}
                             className="flex items-center gap-2 py-0.5 w-full text-left hover:opacity-75 transition-opacity">
                             <span className={cn('text-[10px] shrink-0', getEventDotClass(evt.title))}>●</span>
                             <span className="text-xs text-muted-foreground shrink-0">{formatTime(evt.start_time)}</span>
@@ -418,7 +416,7 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
             ) : (
               <div className="space-y-2">
                 {dayEvts.map(evt => (
-                  <button key={evt.id} onClick={() => setSelectedEvent(evt)}
+                  <button key={evt.id} onClick={() => setManualSelectedEvent(evt)}
                     className="rounded-xl p-4 border border-muted bg-surface-2/60 flex items-start gap-3 w-full text-left hover:bg-muted/40 transition-colors">
                     <div className="text-xs text-muted-foreground pt-0.5 w-12 shrink-0 font-mono">{formatTime(evt.start_time)}</div>
                     <div className="flex-1 min-w-0">
@@ -451,8 +449,8 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
                 const events = getEventsForDate(cell.date)
                 const isToday =
                   cell.isCurrentMonth &&
-                  cell.date.getDate()     === today.getDate()     &&
-                  cell.date.getMonth()    === today.getMonth()     &&
+                  cell.date.getDate() === today.getDate() &&
+                  cell.date.getMonth() === today.getMonth() &&
                   cell.date.getFullYear() === today.getFullYear()
                 
                 return (
@@ -516,7 +514,7 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
                 <p className="text-sm text-muted-foreground col-span-4 text-center py-4">No upcoming sessions this week.</p>
               ) : (
                 (showAllUpcoming ? upcomingWeek : upcomingWeek.slice(0, 4)).map(s => (
-                  <Card key={s.id} onClick={() => setSelectedEvent(s)}
+                  <Card key={s.id} onClick={() => setManualSelectedEvent(s)}
                     className="border-muted/80 bg-surface-2/80 hover:bg-muted/40 transition-colors rounded-2xl shadow-sm cursor-pointer">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
@@ -534,8 +532,6 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
             </div>
           </div>
 
-
-          
         </div>
 
         {/* Right Sidebar */}
@@ -592,13 +588,13 @@ export function ScheduleDashboard({ schedules }: { schedules: Schedule[] }) {
         date={selectedDay}
         events={selectedDay ? getEventsForDate(selectedDay) : []}
         onClose={() => setSelectedDay(null)}
-        onEventClick={evt => setSelectedEvent(evt)}
+        onEventClick={evt => setManualSelectedEvent(evt)}
         onCreateEvent={() => setShowCreatePanel(true)}
       />
 
       <EventDetailModal
         event={selectedEvent}
-        onClose={() => setSelectedEvent(null)}
+        onClose={() => setManualSelectedEvent(null)}
       />
     </div>
   )

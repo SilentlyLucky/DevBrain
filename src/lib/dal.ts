@@ -1,7 +1,7 @@
 import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { embedQuery } from '@/lib/embeddings'
-import type { Document, Folder, Schedule, ChatMessage } from '@/types'
+import type { ChatMessage, Document, DocumentFolderMembershipRow, Folder, RelevantChunk, Schedule } from '@/types'
 
 export const getDocuments = cache(async (): Promise<Document[]> => {
   const supabase = await createClient()
@@ -63,12 +63,6 @@ export const getChatMessages = cache(async (): Promise<ChatMessage[]> => {
     .limit(50)
   return (data as ChatMessage[]) ?? []
 })
-
-export type RelevantChunk = {
-  content: string
-  document_title: string
-  rrf_score: number
-}
 
 export async function retrieveRelevantChunks(
   query: string,
@@ -133,9 +127,8 @@ export const getDocumentsWithFolders = cache(async (): Promise<Document[]> => {
     .select('document_id, folders(id, user_id, name, color, created_at)')
     .in('document_id', docIds)
 
-  type MembershipRow = { document_id: string; folders: Folder | Folder[] | null }
   const folderMap = new Map<string, Folder[]>()
-  for (const m of ((memberships ?? []) as MembershipRow[])) {
+  for (const m of ((memberships ?? []) as DocumentFolderMembershipRow[])) {
     if (!m.folders) continue
     const folder = Array.isArray(m.folders) ? m.folders[0] : m.folders
     if (!folder) continue

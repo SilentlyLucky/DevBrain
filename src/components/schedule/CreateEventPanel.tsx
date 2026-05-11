@@ -73,9 +73,9 @@ export function CreateEventPanel({ open, onClose }: Props) {
   const [saving, setSaving] = useState(false)
 
   // Category
-  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES)
-  const [selectedCat, setSelectedCat] = useState<Category>(DEFAULT_CATEGORIES[0])
-  const [isClient, setIsClient] = useState(false)
+  const initialCategories = typeof window !== 'undefined' ? loadCategories() : DEFAULT_CATEGORIES
+  const [categories, setCategories] = useState<Category[]>(initialCategories) 
+  const [selectedCat, setSelectedCat] = useState<Category>( initialCategories[0] || DEFAULT_CATEGORIES[0] )
   const [catOpen, setCatOpen] = useState(false)
   const [newCatName, setNewCatName] = useState('')
   const [newCatColor, setNewCatColor] = useState(PRESET_COLORS[0])
@@ -107,20 +107,10 @@ export function CreateEventPanel({ open, onClose }: Props) {
   const [customAmount, setCustomAmount] = useState('30')
   const [customUnit, setCustomUnit] = useState<'minutes' | 'hours'>('minutes')
 
-  // Initialize categories on client mount to avoid hydration mismatch
-  useEffect(() => {
-    const cats = loadCategories()
-    setCategories(cats)
-    setSelectedCat(cats[0] || DEFAULT_CATEGORIES[0])
-    setIsClient(true)
-  }, [])
-
   // Persist categories
   useEffect(() => {
-    if (isClient) {
       localStorage.setItem('devbrain-categories', JSON.stringify(categories))
-    }
-  }, [categories, isClient])
+  }, [categories])
 
   // Notify AiWidget to hide when panel is open
   useEffect(() => {

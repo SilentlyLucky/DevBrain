@@ -63,8 +63,6 @@ export function FolderManagerDropdown({ documentId, allFolders, documentFolderId
       fd.append('name', newName.trim())
       fd.append('color', newColor)
       await createFolder(fd)
-      // We need the new folder's id - refetch after creation via router.refresh
-      // The assign happens implicitly since the user will see it in the list
       toast.success(`Folder "${newName.trim()}" created.`)
       setNewName('')
       setShowNewFolder(false)

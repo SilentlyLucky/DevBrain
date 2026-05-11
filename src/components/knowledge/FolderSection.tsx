@@ -1,11 +1,11 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   ChevronDown, ChevronRight, Pencil, Trash2,
   Eye, Download, FileText, Globe, FileCode, Table2, Code, AlignLeft, Loader2,
 } from 'lucide-react'
-import { renameFolder, deleteFolder, removeDocumentFromFolder } from '@/actions/folders'
-import { deleteDocument, fetchDocumentContent, getDocumentSignedUrl, updateDocumentTitle } from '@/actions/documents'
+import { removeDocumentFromFolder } from '@/actions/folders'
+import { deleteDocument, fetchDocumentContent, getDocumentSignedUrl} from '@/actions/documents'
 import { FolderManagerDropdown } from './FolderManagerDropdown'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -221,8 +221,6 @@ interface RenameDialogProps {
 export function RenameFolderDialog({ open, currentName, onClose, onSave }: RenameDialogProps) {
   const [name, setName] = useState(currentName)
   const [saving, setSaving] = useState(false)
-
-  useEffect(() => { setName(currentName) }, [currentName])
 
   async function handle() {
     if (!name.trim()) return

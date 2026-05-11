@@ -1,15 +1,6 @@
 'use client'
 
-export const SUPPORTED_EXTENSIONS = [
-  '.pdf', '.docx',
-  '.txt', '.md',
-  '.csv',
-  '.html',
-  '.js', '.ts', '.jsx', '.tsx',
-  '.py', '.java', '.c', '.cpp', '.go', '.rs',
-] as const
-
-export type SupportedExtension = typeof SUPPORTED_EXTENSIONS[number]
+import { SUPPORTED_EXTENSIONS } from '@/types'
 
 export function getFileExtension(filename: string): string {
   const idx = filename.lastIndexOf('.')

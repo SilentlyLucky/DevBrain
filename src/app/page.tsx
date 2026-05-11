@@ -245,7 +245,7 @@ export default function LandingPage() {
 
               {/* Contact list */}
               <ul className="space-y-1">
-                <ContactRow icon={<LinkedinSvg />} label="LinkedIn" value="@stevenalvinch" href="https://www.linkedin.com/in/stevenalvinchristian" accentColor="#2563EB" />
+                <ContactRow icon={<LinkedinSvg />} label="LinkedIn" value="@stevenalvinchristian" href="https://www.linkedin.com/in/stevenalvinchristian" accentColor="#2563EB" />
                 <ContactRow icon={<GmailSvg />} label="Email" value="stevenalvinch@gmail.com" href="mailto:stevenalvinch@gmail.com" accentColor="#00E5FF" />
                 <ContactRow icon={<GithubSvg />} label="GitHub" value="@SilentlyLucky" href="https://github.com/SilentlyLucky" accentColor="#A855F7" />
                 <ContactRow icon={<PhoneSvg />} label="Phone" value="+62 812-3456-7890" href="tel:+6281234567890" accentColor="#4BFC98" />
@@ -327,7 +327,7 @@ const BRAIN_GLOW = {
 // Beam tuning
 const BEAM = {
   delay: 0.24,   // seconds: how long after glow arrives before beam starts
-  duration: 0.7,  // seconds: how long the beam takes to travel from brain to icon (speed)
+  duration: 0.7,  // seconds: how long the beam takes to travel brain -> icon (speed)
   length: 5,      // SVG units: visible length of the beam segment (size)
   width: 1.2,    // SVG units: stroke width of the beam (thickness)
 } as const

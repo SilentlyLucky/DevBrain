@@ -23,7 +23,12 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
     setStorageUsedBytes(bytes)
   }, [])
 
-  useEffect(() => { refreshStorage() }, [refreshStorage])
+  useEffect(() => {
+    const loadStorage = async () => {
+      await refreshStorage()
+    }
+    loadStorage()
+  }, [refreshStorage])
 
   return (
     <StorageContext.Provider value={{ storageUsedBytes, refreshStorage }}>

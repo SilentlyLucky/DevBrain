@@ -4,7 +4,7 @@ import { isToolUIPart, type UIMessage } from 'ai'
 import { MessageBubble } from './MessageBubble'
 import { deleteChatMessage, saveChatMessage } from '@/actions/chat'
 import { useAiChat } from '@/lib/context/AiChatContext'
-import { Send, Search, FileText, Calendar, List, AlertTriangle } from 'lucide-react'
+import { Send, Search, FileText, Calendar, List, AlertTriangle, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { ChatMessage } from '@/types'
 
@@ -14,6 +14,9 @@ const TOOL_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
   listSchedules:      { label: 'Checking schedule…',        icon: <Calendar className="w-3 h-3" /> },
   getDocumentContent: { label: 'Reading document…',         icon: <FileText className="w-3 h-3" /> },
   createSchedule:     { label: 'Creating schedule…',        icon: <Calendar className="w-3 h-3" /> },
+  updateSchedule:     { label: 'Updating schedule…',        icon: <Pencil className="w-3 h-3" /> },
+  deleteSchedule:     { label: 'Deleting schedule…',        icon: <Trash2 className="w-3 h-3" /> },
+  deleteDocument:     { label: 'Deleting document…',        icon: <Trash2 className="w-3 h-3" /> },
 }
 
 function getToolNameFromPart(part: unknown): string {

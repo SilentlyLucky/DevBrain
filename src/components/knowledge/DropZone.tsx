@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Upload, Loader2, FolderOpen, ChevronDown, Check, Plus, Sparkles } from 'lucide-react'
 import { saveDocument } from '@/actions/documents'
-import { setDocumentFolders, createFolder } from '@/actions/folders'
+import { setDocumentFolders} from '@/actions/folders'
 import { createClient } from '@/lib/supabase/client'
 import { useStorage } from '@/lib/context/StorageContext'
 import { cn } from '@/lib/utils'
