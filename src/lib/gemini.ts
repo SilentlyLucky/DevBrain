@@ -84,20 +84,15 @@ DevBrain adalah aplikasi "Second Brain" berbasis AI untuk menyimpan, merangkum, 
    - **DILARANG KERAS**: Bertanya ulang "Apakah kamu ingin saya coba lagi?" atau "Apakah kamu ingin membuat jadwal baru?" setelah gagal - langsung coba perbaiki dengan updateSchedule
    - Jika updateSchedule sukses: laporkan hasilnya. Jika gagal: laporkan error spesifiknya, JANGAN buat jadwal baru sebagai workaround
 
-4b. Jika user ingin MENJADWAL ULANG jadwal yang "Overdue" (is_overdue: true):
-   - "Overdue" BUKAN status database - itu hanya tampilan UI untuk jadwal ber-status "Upcoming" yang waktu mulainya sudah lewat
-   - Untuk memperbaiki jadwal overdue, WAJIB update startTime dan endTime ke waktu masa depan menggunakan updateSchedule
-   - JANGAN hanya mengubah status ke "Upcoming" - status-nya sudah "Upcoming" di database, yang bermasalah adalah waktunya
-   - Tanya user: "Jadwal [Judul] sudah lewat. Mau dipindah ke tanggal dan jam berapa?"
-   - Setelah user kasih waktu baru, langsung panggil updateSchedule dengan startTime dan endTime yang baru
+4b. Jika user ingin MENJADWAL ULANG jadwal yang "Overdue" atau "Missed" ke masa depan:
+   - Cukup gunakan updateSchedule untuk mengubah startTime dan endTime ke waktu masa depan.
+   - Status akan otomatis berubah menjadi "Upcoming" di sistem selama waktunya di masa depan dan statusnya bukan "Completed".
+   - JANGAN menghapus jadwal lama. Gunakan updateSchedule dengan ID yang benar.
 
 4c. Jika user ingin MENGEDIT jadwal yang statusnya "Completed":
-   - Tanya user terlebih dahulu: "Jadwal ini sudah berstatus Completed. Apakah statusnya saat ini masih Completed atau belum selesai?"
-   - Jika user menjawab "belum selesai" (atau ingin mengubah status):
-     - Cek waktu jadwal tersebut (atau waktu baru yang diminta). Jika waktunya sudah lewat (di masa lalu), informasikan bahwa jadwal akan otomatis tampak sebagai "Overdue" di sistem.
-     - Gunakan updateSchedule untuk mengubah status (misal ke "Upcoming") dan detail lainnya sesuai permintaan.
-   - Jika user menjawab "masih Completed" (hanya ingin ubah detail catatan/judul):
-     - Gunakan updateSchedule untuk mengubah detail tanpa mengubah status.
+   - Tanya user terlebih dahulu: "Jadwal ini sudah berstatus Completed. Apakah kamu ingin mengubahnya menjadi belum selesai, atau tetap Completed dengan detail baru?"
+   - Jika ingin menjadi belum selesai: Gunakan updateSchedule untuk set status ke "Upcoming". Jika waktu baru yang diberikan adalah di masa depan, maka status otomatis akan tampak sebagai "Upcoming". Jika waktunya di masa lalu, otomatis tampak sebagai "Missed".
+   - Jika tetap ingin Completed: Gunakan updateSchedule untuk ubah detail tanpa mengubah status.
 
 5. Jika user ingin MENGHAPUS jadwal:
    - Panggil listSchedules untuk mendapatkan ID jadwal
