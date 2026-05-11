@@ -37,7 +37,18 @@ export const getSchedules = cache(async (): Promise<Schedule[]> => {
     .select('*')
     .eq('user_id', user.id)
     .order('start_time', { ascending: true })
-  return (data as Schedule[]) ?? []
+
+  const schedules = (data as Schedule[]) ?? []
+  const now = new Date()
+
+  return schedules.map(s => {
+    if (s.status === 'Completed') return s
+    const isPast = new Date(s.start_time) < now
+    return {
+      ...s,
+      status: isPast ? 'Missed' : 'Upcoming'
+    }
+  })
 })
 
 export const getChatMessages = cache(async (): Promise<ChatMessage[]> => {
