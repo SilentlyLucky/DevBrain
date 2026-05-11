@@ -7,6 +7,7 @@ import {
   CloudUpload, Brain, MessageSquare, Clock,
 } from 'lucide-react'
 import Link from 'next/link'
+import { LocalTimeRange } from '@/components/schedule/LocalTimeRange'
 import { QuickActions } from '@/components/dashboard/QuickActions'
 import { formatDistanceToNow } from '@/lib/utils'
 import type { Document, Schedule } from '@/types'
@@ -225,8 +226,6 @@ function parseCategory(desc: string | null | undefined) {
 }
 
 function ScheduleRow({ schedule: s }: { schedule: Schedule }) {
-  const fmtTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
   const cat = parseCategory(s.description)
   const STATUS_COLOR: Record<string, string> = {
     Upcoming: 'bg-blue-400/15 text-blue-400',
@@ -243,7 +242,7 @@ function ScheduleRow({ schedule: s }: { schedule: Schedule }) {
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
           <span className="text-xs text-muted-foreground flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            {fmtTime(s.start_time)} - {fmtTime(s.end_time)}
+            <LocalTimeRange start={s.start_time} end={s.end_time} />
           </span>
           {cat && (
             <span className="text-[11px] flex items-center gap-1 text-muted-foreground">
