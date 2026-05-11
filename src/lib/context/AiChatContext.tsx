@@ -57,7 +57,10 @@ export function AiChatProvider({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
     messages: initialMessages.map(toUIMessage),
     onFinish: async ({ message }) => {
-      router.refresh()
+      const hasToolInvocation = message.parts.some(p => p.type === 'tool-invocation')
+      if (hasToolInvocation) {
+        router.refresh()
+      }
 
       const text = message.parts
         .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
