@@ -303,7 +303,7 @@ retrieveRelevantChunks(query)   // Hybrid RAG: semantic + keyword -> RRF fusion
 
 **Illustration**
 
-[Pipeline AI.png)](https://github.com/SilentlyLucky/DevBrain/blob/6986788ae52f3055df1f2dc3c839f4e575ddffe5/Assets/Pipeline%20AI.png)
+![Pipeline AI.png)](https://github.com/SilentlyLucky/DevBrain/blob/6986788ae52f3055df1f2dc3c839f4e575ddffe5/Assets/Pipeline%20AI.png)
 
 ```
 User Query
